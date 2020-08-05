@@ -1,0 +1,38 @@
+@model PizzaStore.Client.Models.StoreViewModel
+@{
+    ViewData["Title"] = "Store";
+}
+
+<h2>Welcome to @Model.StoreName!</h2>
+
+<main>
+  <section>
+    <p>What would you like to order?</p>
+    @using (Html.BeginForm("SubmitOrder", "Store", FormMethod.Post)) {
+      <table>
+        <tr>
+          <td>Select</td>
+          <td>Name</td>
+          <td>Size</td>
+          <td>Cost</td>
+          <td>Quantity</td>
+        </tr>
+        @for (int i = 0; i < Model.Menu.Count(); i++) {
+          <tr>
+            <td>@Html.CheckBoxFor(m => m.Menu[i].Checked)</td>
+            @Html.HiddenFor(m => m.Menu[i].ID)
+            <td>@Html.HiddenFor(m => m.Menu[i].Name)
+            @Html.DisplayFor(m => m.Menu[i].Name)</td>
+            <td>@Html.DropDownListFor(m => m.Menu[i].SelectedSize, new SelectList(Enum.GetValues(typeof(Size))), "Select Size")</td>
+            <td>@Html.HiddenFor(m => m.Menu[i].Cost)
+            $@Html.DisplayFor(m => m.Menu[i].Cost)</td>
+            <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0" }})</td>
+          </tr>
+        }
+      </table>
+      <br>
+      <input type="submit" value="Submit">
+      <p>@Model.ReasonForError</p>
+    }
+  </section>
+</main>

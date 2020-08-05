@@ -1,0 +1,14 @@
+@model PizzaStore.Client.Models.UserViewModel
+@{
+    ViewData["Title"] = "New User Added";
+}
+
+<h2>New User Added</h2>
+
+<main>
+  <section>
+    <span>A new user with the name @Model.Name, assigned an ID number of @Model.ID has been added to the system.</span><br>
+    <span>Keep track of this ID number. It will be used to track your order history and to allow you to place future orders.</span><br>
+    <span>Please return to the main page to log in and order some pizzas!</span>
+  </section>
+</main>

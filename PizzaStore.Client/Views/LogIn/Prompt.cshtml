@@ -1,0 +1,17 @@
+@model PizzaStore.Client.Models.LogInViewModel
+@{
+    ViewData["Title"] = "Log In";
+}
+
+<h2>User Login</h2>
+
+<main>
+  <section>
+    <p>Please enter your user ID in the box below (must be a positive integer):</p>
+    @using (Html.BeginForm("Auto", "LogIn", FormMethod.Post)) {
+      @Html.TextBoxFor(model => model.IDInput)
+      @Html.ValidationMessageFor(model => model.IDInput)
+      <br><br><input type="submit" value="Submit">
+    }
+  </section>
+</main>

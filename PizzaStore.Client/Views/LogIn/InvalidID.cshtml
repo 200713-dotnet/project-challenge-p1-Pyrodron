@@ -1,0 +1,16 @@
+@model PizzaStore.Client.Models.LogInViewModel
+@{
+    ViewData["Title"] = "Invalid ID";
+}
+
+<h2>Invalid ID</h2>
+
+<main>
+  <section>
+    <span>
+      The ID you have entered is invalid.<br>
+      @Model.ReasonForInvalid<br>
+      Please make sure you are entering a positive integer for an ID and try again.
+    </span>
+  </section>
+</main>

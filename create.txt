@@ -1,0 +1,28 @@
+dotnet new sln -n PizzaStore
+dotnet new mvc -o PizzaStore.Client
+dotnet add PizzaStore.Client/PizzaStore.Client.csproj package Microsoft.EntityFrameworkCore.SQLite
+dotnet add PizzaStore.Client/PizzaStore.Client.csproj package Microsoft.VisualStudio.Web.CodeGeneration.Design
+dotnet add PizzaStore.Client/PizzaStore.Client.csproj package Microsoft.EntityFrameworkCore.Design
+dotnet add PizzaStore.Client/PizzaStore.Client.csproj package Microsoft.EntityFrameworkCore.SqlServer
+dotnet new classlib -n PizzaStore.Storing
+dotnet add PizzaStore.Storing/PizzaStore.Storing.csproj package Microsoft.Entityframeworkcore.Sqlserver
+dotnet add PizzaStore.Storing/PizzaStore.Storing.csproj package Microsoft.Entityframeworkcore.Relational
+dotnet new classlib -n PizzaStore.Domain
+touch PizzaStore.Domain/Models/Model.cs
+touch PizzaStore.Domain/Models/Menu.cs
+touch PizzaStore.Domain/Models/Order.cs
+touch PizzaStore.Domain/Models/Pizza.cs
+touch PizzaStore.Domain/Models/Store.cs
+touch PizzaStore.Domain/Models/User.cs
+dotnet add PizzaStore.Client/PizzaStore.Client.csproj reference PizzaStore.Domain/PizzaStore.Domain.csproj
+dotnet add PizzaStore.Client/PizzaStore.Client.csproj reference PizzaStore.Storing/PizzaStore.Storing.csproj
+dotnet add PizzaStore.Storing/PizzaStore.Storing.csproj reference PizzaStore.Domain/PizzaStore.Domain.csproj
+mkdir PizzaStore.Domain/Models
+dotnet new xunit -n PizzaStore.Testing
+dotnet sln add **/*.csproj
+touch PizzaStore.Storing/PizzaStoreDbContext.cs
+~/.dotnet/tools/dotnet-ef migrations add 'migration 8' -s PizzaStore.Client/PizzaStore.Client.csproj -p PizzaStore.Storing/PizzaStore.Storing.csproj
+~/.dotnet/tools/dotnet-ef database update -s PizzaStore.Client/PizzaStore.Client.csproj -p PizzaStore.Storing/PizzaStore.Storing.csproj
+dotnet watch -p PizzaStore.Client/PizzaStore.Client.csproj run
+
+GET STORE FLOW WORKING
