@@ -77,6 +77,7 @@ namespace PizzaStore.Client.Controllers {
       try {
         _ = userLoggedIn;
         storeID = (int) TempData["StoreID"];
+        TempData.Keep("StoreID");
       } catch (NullReferenceException) {
         viewModel.ReasonForError = "You are not logged into the system. You will only be able to view menus until you return to the main page and log in.";
         return View("Visit", viewModel);
@@ -85,10 +86,9 @@ namespace PizzaStore.Client.Controllers {
       StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
       viewModel.StoreName = store.Name;
 
-      // string output = "";
       decimal overallCost = 0.00M;
+      int overallQuantity = 0;
       foreach (CheckModel selectedPizza in viewModel.Menu) {
-        // output += $"{selectedPizza.ID} {selectedPizza.Name} {selectedPizza.Checked} {selectedPizza.SelectedSize} {selectedPizza.Cost} {selectedPizza.Quantity}<br>";
         if (selectedPizza.Checked) {
           string size = selectedPizza.SelectedSize.ToString().ToLower();
           if (!Regex.IsMatch(size, "small|medium|large")) {
@@ -115,10 +115,14 @@ namespace PizzaStore.Client.Controllers {
             Size = size.ToUpper()[0]
           });
           overallCost += costOfThesePizzas;
+          overallQuantity += selectedPizza.Quantity;
         }
       }
       if (overallCost > 250.00M) {
         viewModel.ReasonForError = "This order exceeds $250. Please remove some pizzas, then try again.";
+        return View("Visit", viewModel);
+      } else if (overallQuantity > 50) {
+        viewModel.ReasonForError = "This order exceeds 50 pizzas. Please remove some pizzas, then try again.";
         return View("Visit", viewModel);
       }
       _db.SaveChanges();

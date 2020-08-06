@@ -25,7 +25,7 @@ namespace PizzaStore.Client {
               //   }
               // );
 
-              // context.Pizzas.AddRange(
+              context.Pizzas.AddRange(
               //   new Pizza {
               //     Name = "Supreme",
               //     Cost = 15.00M,
@@ -47,8 +47,14 @@ namespace PizzaStore.Client {
               //     Toppings = null,
               //     Crust = "thin"
               //   }
-              // );
-              // context.Menu.AddRange(
+                // new PizzaModel {
+                //   Name = "Bread",
+                //   Cost = 1.00M,
+                //   Toppings = null,
+                //   Crust = "all"
+                // }
+              );
+              context.Menu.AddRange(
               //   new Menu {
               //     StoreID = 1,
               //     PizzaID = 1
@@ -68,7 +74,11 @@ namespace PizzaStore.Client {
               //     StoreID = 2,
               //     PizzaID = 4
               //   }
-              // );
+                // new MenuModel {
+                //   StoreID = 2,
+                //   PizzaID = 5
+                // }
+              );
               // foreach (Order order in context.Orders.ToList()) {
               //   context.Orders.Remove(order);
               // }
