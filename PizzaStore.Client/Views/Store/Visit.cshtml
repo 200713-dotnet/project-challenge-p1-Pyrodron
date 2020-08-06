@@ -32,7 +32,10 @@
       </table>
       <br>
       <input type="submit" value="Submit">
-      <p>@Model.ReasonForError</p>
     }
+    @using (Html.BeginForm("BackToStoreSelection", "Store", FormMethod.Post)) {
+      <input type="submit" value="Back">
+    }
+    <p>@Model.ReasonForError</p>
   </section>
 </main>
