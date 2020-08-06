@@ -90,6 +90,10 @@ namespace PizzaStore.Client.Controllers {
             model.ReasonForError = $"Invalid size on pizza {selectedPizza.Name}";
             return View("Visit", model);
           }
+          if (selectedPizza.Quantity == 0) {
+            model.ReasonForError = $"{selectedPizza.Name} pizza must have a quantity greater than 0 if selected to be ordered";
+            return View("Visit", model);
+          }
           
           Pizza pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
           _db.Orders.Add(new Order{
@@ -98,7 +102,8 @@ namespace PizzaStore.Client.Controllers {
             UserID = userLoggedIn,
             Created = DateTime.Now,
             TotalCost = pizza.Cost,
-            Size = size.ToUpper()[0]
+            Size = size.ToUpper()[0],
+            Quantity = selectedPizza.Quantity
           });
         }
       }

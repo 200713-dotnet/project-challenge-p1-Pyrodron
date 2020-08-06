@@ -24,6 +24,7 @@ namespace PizzaStore.Client.Controllers {
     public IActionResult OrderHistory(OrderViewModel model) {
       List<Order> orders;
       try {
+        _ = userLoggedIn; // exception not caught if you just use uLI
         orders = _db.Orders.Where(o => o.UserID == userLoggedIn).ToList();
       } catch (NullReferenceException) {
         model.ReasonForError = "You are not logged in. Please return to the main page to login and try again.";
@@ -32,11 +33,12 @@ namespace PizzaStore.Client.Controllers {
       Dictionary<int, Tuple<DateTime, StringBuilder, decimal, string>> orderDisplay = new Dictionary<int, Tuple<DateTime, StringBuilder, decimal, string>>(); // created, pizza list, cost, store name
       foreach (Order order in orders) {
         Pizza pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault();
+        string size = order.Size == 'S' ? "Small" : order.Size == 'M' ? "Medium" : order.Size == 'L' ? "Large" : order.Size.ToString();
         try {
-          orderDisplay[order.ID].Item2.Append($", {order.Size} {pizza}");
+          orderDisplay[order.ID].Item2.Append($", {size} {pizza.ToString()}");
         } catch (KeyNotFoundException) {
           StringBuilder sb = new StringBuilder();
-          sb.Append($"{order.Size} {pizza}");
+          sb.Append($"{size} {pizza}");
           orderDisplay.Add(order.ID, new Tuple<DateTime, StringBuilder, decimal, string>(order.Created, sb, order.TotalCost, _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name));
         }
       }
