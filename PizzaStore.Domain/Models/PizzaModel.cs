@@ -1,5 +1,5 @@
 namespace PizzaStore.Domain.Models {
-  public class Pizza : Model {
+  public class PizzaModel : AModel {
     public string Name { get; set; }
     public string Crust { get; set; }
     public string Toppings { get; set; }

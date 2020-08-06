@@ -4,11 +4,11 @@ The goal of the project is to build a Pizza Ordering System.
 
 ## architecture (REQUIRED)
 
-+ [solution] PizzaBox.sln
-  + [project - MVC] PizzaBox.Client.csproj
-    + OrderController, UserController, StoreController
-  + [project - ClassLib] PizzaBox.Domain.csproj
-    + think about abstraction, design patterns
++ [solution] PizzaBox.sln ✔️
+  + [project - MVC] PizzaBox.Client.csproj ✔️
+    + OrderController, UserController, StoreController ✔️
+  + [project - ClassLib] PizzaBox.Domain.csproj ✔️
+    + think about abstraction, design patterns ✔️
     + implement Models
   + [project - ClassLib ] PizzaBox.Storing.csproj
     + implement at least 1 repository

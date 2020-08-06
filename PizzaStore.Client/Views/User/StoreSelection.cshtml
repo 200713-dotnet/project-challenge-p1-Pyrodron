@@ -8,7 +8,7 @@
 <main>
   <span>What would you like to do today? Select a store to visit it, or select an action to perform.</span><br>
   @using (Html.BeginForm("OptionSelected", "User", FormMethod.Post)) {
-    @foreach (PizzaStore.Domain.Models.Store store in Model.Stores) {
+    @foreach (PizzaStore.Domain.Models.StoreModel store in Model.Stores) {
       @Html.RadioButtonFor(model => model.OptionSelected, store.ID)<span> @store.Name</span><br>
     }
     @Html.RadioButtonFor(model => model.OptionSelected, -1)<span> View Order History</span>

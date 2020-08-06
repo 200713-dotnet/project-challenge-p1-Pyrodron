@@ -25,7 +25,7 @@ namespace PizzaStore.Client.Controllers {
 
     [HttpGet]
     public IActionResult Visit(int ID) {
-      Store store;
+      StoreModel store;
       try {
         store = _db.Stores.Where(s => s.ID == ID).SingleOrDefault();
       } catch (SqlException e) {
@@ -40,11 +40,11 @@ namespace PizzaStore.Client.Controllers {
         // ERROR
       }
 
-      List<Menu> items = _db.Menu.Where(m => m.StoreID == ID).ToList();
-      List<Pizza> pizzas = new List<Pizza>();
+      List<MenuModel> items = _db.Menu.Where(m => m.StoreID == ID).ToList();
+      List<PizzaModel> pizzas = new List<PizzaModel>();
       List<CheckModel> pizzasToSelectFrom = new List<CheckModel>();
-      foreach (Menu item in items) {
-        Pizza pizza = _db.Pizzas.Where(p => p.ID == item.PizzaID).SingleOrDefault();
+      foreach (MenuModel item in items) {
+        PizzaModel pizza = _db.Pizzas.Where(p => p.ID == item.PizzaID).SingleOrDefault();
         if (pizza == null) {
           Console.WriteLine($"Unknown pizza found with ID {item.PizzaID} from store {item.StoreID} at menu ID {item.ID}");
         } else {
@@ -71,7 +71,7 @@ namespace PizzaStore.Client.Controllers {
     [HttpPost]
     public IActionResult SubmitOrder(StoreViewModel model) {
       int storeID = (int) TempData["StoreID"];
-      Store store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
+      StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
       model.StoreName = store.Name;
 
       try {
@@ -98,8 +98,8 @@ namespace PizzaStore.Client.Controllers {
             return View("Visit", model);
           }
           
-          Pizza pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
-          _db.Orders.Add(new Order{
+          PizzaModel pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
+          _db.Orders.Add(new OrderModel{
             StoreID = storeID,
             PizzaID = pizza.ID,
             UserID = userLoggedIn,

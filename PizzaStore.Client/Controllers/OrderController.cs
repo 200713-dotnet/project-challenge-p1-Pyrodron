@@ -22,7 +22,7 @@ namespace PizzaStore.Client.Controllers {
 
     [HttpGet]
     public IActionResult OrderHistory(OrderViewModel model) {
-      List<Order> orders;
+      List<OrderModel> orders;
       try {
         _ = userLoggedIn; // exception not caught if you just use uLI
         orders = _db.Orders.Where(o => o.UserID == userLoggedIn).ToList();
@@ -31,8 +31,8 @@ namespace PizzaStore.Client.Controllers {
         return View("Error", model);
       }
       Dictionary<int, Tuple<DateTime, StringBuilder, int, decimal, string>> orderDisplay = new Dictionary<int, Tuple<DateTime, StringBuilder, int, decimal, string>>(); // created, pizza list, quantity, cost, store name
-      foreach (Order order in orders) {
-        Pizza pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault();
+      foreach (OrderModel order in orders) {
+        PizzaModel pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault();
         string size = order.Size == 'S' ? "Small" : order.Size == 'M' ? "Medium" : order.Size == 'L' ? "Large" : order.Size.ToString();
         try {
           orderDisplay[order.ID].Item2.Append($", {size} {pizza.ToString()}");

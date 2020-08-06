@@ -34,8 +34,8 @@ namespace PizzaStore.Client.Controllers {
           model.ReasonForInvalid = "Zero is not a positive integer.";
           return View("InvalidID", model);
         }
-        User matchingUser = null;
-        foreach (User user in _db.Users) {
+        UserModel matchingUser = null;
+        foreach (UserModel user in _db.Users) {
           if (user.ID == parsedInput) {
             matchingUser = user;
             break;

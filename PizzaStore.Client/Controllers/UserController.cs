@@ -23,7 +23,7 @@ namespace PizzaStore.Client.Controllers {
     [HttpPost]
     public IActionResult AddUser(LogInViewModel model) {
       try {
-        _db.Users.Add(new User{
+        _db.Users.Add(new UserModel{
           Name = model.NewName
         });
         _db.SaveChanges();
@@ -64,8 +64,8 @@ namespace PizzaStore.Client.Controllers {
       } else if (option == -1) {
         return Redirect("/Order/OrderHistory");
       }
-      Store foundStore = null;
-      foreach (Store store in _db.Stores.ToList()) {
+      StoreModel foundStore = null;
+      foreach (StoreModel store in _db.Stores.ToList()) {
         if (store.ID == option) {
           foundStore = store;
           break;

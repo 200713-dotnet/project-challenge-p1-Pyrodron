@@ -5,8 +5,8 @@ namespace PizzaStore.Client.Models {
   public class UserViewModel {
     public int ID { get; set; }
     public string Name { get; set; }
-    List<Store> _stores = null;
-    public List<Store> Stores {
+    List<StoreModel> _stores = null;
+    public List<StoreModel> Stores {
       get {
         return _stores;
       }
