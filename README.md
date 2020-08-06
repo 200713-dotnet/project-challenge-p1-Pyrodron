@@ -9,8 +9,8 @@ The goal of the project is to build a Pizza Ordering System.
     + OrderController, UserController, StoreController ✔️
   + [project - ClassLib] PizzaBox.Domain.csproj ✔️
     + think about abstraction, design patterns ✔️
-    + implement Models
-  + [project - ClassLib ] PizzaBox.Storing.csproj
+    + implement Models ✔️
+  + [project - ClassLib ] PizzaBox.Storing.csproj ✔️
     + implement at least 1 repository
   + [project - xunit] PizzaBox.Testing.csproj
     + implement unit testing
@@ -21,14 +21,14 @@ The project should support objects of User, Store, Order, Pizza.
 
 ### store
 
-+ [required] there should exist at least 2 stores for a user to choose from
++ [required] there should exist at least 2 stores for a user to choose from ✔️
 + [required] each store should be able to view/list any and all of their completed/placed orders
 + [required] each store should be able to view/list any and all of their sales (amount of revenue weekly or monthly)
 
 ### order
 
-+ [required] each order must be able to view/list/edit its collection of pizzas
-+ [required] each order must be able to compute its pricing
++ [required] each order must be able to view/list/edit its collection of pizzas ✔️
++ [required] each order must be able to compute its pricing ✔️
 + [required] each order must be limited to a total pricing of no more than $250
 + [required] each order must be limited to a collection of pizzas of no more than 50
 

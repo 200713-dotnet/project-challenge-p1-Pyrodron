@@ -31,13 +31,16 @@ namespace PizzaStore.Client.Controllers {
       } catch (SqlException e) {
         if (e.Message.Contains("server was not found")) {
           Console.WriteLine("Could not connect to the SQL database");
-          // ERROR
-          return null;
+          StoreViewModel thisModel = new StoreViewModel();
+          thisModel.ReasonForError = "An internal error has occured. Please return to the main page and try again.";
+          return View("Error", thisModel);
         }
         throw e;
       }
       if (store == null) {
-        // ERROR
+        StoreViewModel thisModel = new StoreViewModel();
+        thisModel.ReasonForError = $"A store with an ID of {ID} does not exist. Please enter a different ID from the URL, or select a store from the selection page after logging in.";
+        return View("Error", thisModel);
       }
 
       List<MenuModel> items = _db.Menu.Where(m => m.StoreID == ID).ToList();
