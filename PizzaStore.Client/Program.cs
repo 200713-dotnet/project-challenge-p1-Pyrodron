@@ -69,16 +69,10 @@ namespace PizzaStore.Client {
               //     PizzaID = 4
               //   }
               // );
+              // foreach (Order order in context.Orders.ToList()) {
+              //   context.Orders.Remove(order);
+              // }
               // context.SaveChanges();
-              foreach (Store store in context.Stores.ToList()) {
-                Console.WriteLine($"{store.ID} {store.Name}");
-              }
-              foreach (Pizza pizza in context.Pizzas.ToList()) {
-                Console.WriteLine(pizza.ID + " " + pizza.Name);
-              }
-              foreach (Menu menu in context.Menu.ToList()) {
-                Console.WriteLine($"{menu.StoreID} {menu.PizzaID}");
-              }
             }
           }
         }

@@ -1,0 +1,15 @@
+@model PizzaStore.Client.Models.StoreViewModel
+@{
+    ViewData["Title"] = "Order Submitted";
+}
+
+<h2>Order Submitted</h2>
+
+<main>
+  <section>
+    <p>Your order has been successfully submitted!</p>
+    @using (Html.BeginForm("BackToStoreSelection", "Store", FormMethod.Post)) {
+      <input type="submit" value="Go Back to Store Selection">
+    }
+  </section>
+</main>

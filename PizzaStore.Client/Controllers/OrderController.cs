@@ -30,7 +30,7 @@ namespace PizzaStore.Client.Controllers {
         model.ReasonForError = "You are not logged in. Please return to the main page to login and try again.";
         return View("Error", model);
       }
-      Dictionary<int, Tuple<DateTime, StringBuilder, decimal, string>> orderDisplay = new Dictionary<int, Tuple<DateTime, StringBuilder, decimal, string>>(); // created, pizza list, cost, store name
+      Dictionary<int, Tuple<DateTime, StringBuilder, int, decimal, string>> orderDisplay = new Dictionary<int, Tuple<DateTime, StringBuilder, int, decimal, string>>(); // created, pizza list, quantity, cost, store name
       foreach (Order order in orders) {
         Pizza pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault();
         string size = order.Size == 'S' ? "Small" : order.Size == 'M' ? "Medium" : order.Size == 'L' ? "Large" : order.Size.ToString();
@@ -39,7 +39,7 @@ namespace PizzaStore.Client.Controllers {
         } catch (KeyNotFoundException) {
           StringBuilder sb = new StringBuilder();
           sb.Append($"{size} {pizza}");
-          orderDisplay.Add(order.ID, new Tuple<DateTime, StringBuilder, decimal, string>(order.Created, sb, order.TotalCost, _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name));
+          orderDisplay.Add(order.ID, new Tuple<DateTime, StringBuilder, int, decimal, string>(order.Created, sb, order.Quantity, order.TotalCost, _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name));
         }
       }
 

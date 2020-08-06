@@ -93,6 +93,9 @@ namespace PizzaStore.Client.Controllers {
           if (selectedPizza.Quantity == 0) {
             model.ReasonForError = $"{selectedPizza.Name} pizza must have a quantity greater than 0 if selected to be ordered";
             return View("Visit", model);
+          } else if (selectedPizza.Quantity < 0) {
+            model.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
+            return View("Visit", model);
           }
           
           Pizza pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
@@ -101,16 +104,20 @@ namespace PizzaStore.Client.Controllers {
             PizzaID = pizza.ID,
             UserID = userLoggedIn,
             Created = DateTime.Now,
-            TotalCost = pizza.Cost,
-            Size = size.ToUpper()[0],
-            Quantity = selectedPizza.Quantity
+            Quantity = selectedPizza.Quantity,
+            TotalCost = pizza.Cost * (decimal) selectedPizza.Quantity,
+            Size = size.ToUpper()[0]
           });
         }
       }
       _db.SaveChanges();
 
-      model.ReasonForError = output;
-      return View("Visit", model);
+      return View("Submitted");
+    }
+  
+    [HttpPost]
+    public IActionResult BackToStoreSelection() {
+      return Redirect("/User/StoreSelection");
     }
   }
 }
