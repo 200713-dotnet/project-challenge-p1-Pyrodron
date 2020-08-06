@@ -10,6 +10,7 @@
     <tr>
       <th>Order Created</th>
       <th>Pizzas in Order</th>
+      <th>Crust</th>
       <th>Quantity</th>
       <th>Cost of Order</th>
       <th>Store Ordered From</th>
@@ -19,8 +20,9 @@
           <td>@Model.OrderHistory[orderID].Item1</td>
           <td>@Model.OrderHistory[orderID].Item2</td>
           <td>@Model.OrderHistory[orderID].Item3</td>
-          <td>@string.Format("${0:N2}", Model.OrderHistory[orderID].Item4)</td>
-          <td>@Model.OrderHistory[orderID].Item5</td>
+          <td>@Model.OrderHistory[orderID].Item4</td>
+          <td>@string.Format("${0:N2}", Model.OrderHistory[orderID].Item5)</td>
+          <td>@Model.OrderHistory[orderID].Item6</td>
         </tr>
       }
   </table>

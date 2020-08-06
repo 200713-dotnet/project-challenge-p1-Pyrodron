@@ -9,6 +9,7 @@ namespace PizzaStore.Domain.Models {
     public decimal TotalCost { get; set; }
     public string Size { get; set; }
     public int Quantity { get; set; }
+    public int CrustID { get; set; }
   }
   
 }

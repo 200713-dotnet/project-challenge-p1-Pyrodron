@@ -35,7 +35,7 @@ The project should support objects of User, Store, Order, Pizza.
 ### pizza
 
 + [required] each pizza must be able to have a crust ✔️
-+ [required] each pizza must be able to have a size ✔️
++ [required] each pizza must be able to have a size ✔️ - size will remain in the OrderModel as I do not believe that a pizza should be restricted to a size
 + [required] each pizza must be able to have toppings ✔️
 + [required] each pizza must be able to compute its pricing ✔️
 + [required] each pizza must have no less than 2 default toppings

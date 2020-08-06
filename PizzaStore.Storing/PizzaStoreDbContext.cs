@@ -3,6 +3,7 @@ using PizzaStore.Domain.Models;
 
 namespace PizzaStore.Storing {
   public class PizzaStoreDbContext : DbContext {
+    public DbSet<CrustModel> Crust { get; set; }
     public DbSet<MenuModel> Menu { get; set; }
     public DbSet<OrderModel> Orders { get; set; }
     public DbSet<PizzaModel> Pizzas { get; set; }
@@ -14,6 +15,7 @@ namespace PizzaStore.Storing {
     }
 
     protected override void OnModelCreating(ModelBuilder builder) {
+      builder.Entity<CrustModel>().HasKey(e => e.ID);
       builder.Entity<MenuModel>().HasKey(e => e.ID);
       builder.Entity<OrderModel>().HasKey(e => e.ID);
       builder.Entity<OrderModel>().Property(e => e.TotalCost).HasColumnType("decimal(18, 2)");

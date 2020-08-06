@@ -64,6 +64,7 @@ namespace PizzaStore.Client.Controllers {
       } catch (NullReferenceException) {
         // people can view menus if they're not logged in, but not order
       }
+      model.Crusts = _db.Crust.ToList();
 
       TempData["StoreID"] = store.ID;
       TempData.Keep("StoreID");
@@ -85,13 +86,16 @@ namespace PizzaStore.Client.Controllers {
 
       StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
       viewModel.StoreName = store.Name;
+      viewModel.Crusts = _db.Crust.ToList();  // reference needs to be re-established if an error occurs submitting the order
 
       decimal overallCost = 0.00M;
       int overallQuantity = 0;
+      string output = "";
       foreach (CheckModel selectedPizza in viewModel.Menu) {
+        output += $"{selectedPizza.SelectedCrust}<br>";
         if (selectedPizza.Checked) {
           string size = selectedPizza.SelectedSize.ToString().ToLower();
-          if (!Regex.IsMatch(size, "small|medium|large")) {
+          if (Enum.IsDefined(typeof(Size), size)) {
             viewModel.ReasonForError = $"Invalid size on pizza {selectedPizza.Name}";
             return View("Visit", viewModel);
           }
@@ -102,7 +106,12 @@ namespace PizzaStore.Client.Controllers {
             viewModel.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
             return View("Visit", viewModel);
           }
-          
+          CrustModel crust = _db.Crust.Where(c => c.Name == selectedPizza.SelectedCrust).SingleOrDefault();
+          if (crust == null) {
+            viewModel.ReasonForError = $"No crust was selected on the {selectedPizza.Name} pizza. Please try selecting a different crust.";
+            return View("Visit", viewModel);
+          }
+
           PizzaModel pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
           decimal costOfThesePizzas = pizza.Cost * (decimal) selectedPizza.Quantity;
           _db.Orders.Add(new OrderModel{
@@ -112,7 +121,8 @@ namespace PizzaStore.Client.Controllers {
             Created = DateTime.Now,
             Quantity = selectedPizza.Quantity,
             TotalCost = costOfThesePizzas,
-            Size = selectedPizza.SelectedSize.ToString()
+            Size = selectedPizza.SelectedSize.ToString(),
+            CrustID = crust.ID
           });
           overallCost += costOfThesePizzas;
           overallQuantity += selectedPizza.Quantity;
@@ -128,6 +138,8 @@ namespace PizzaStore.Client.Controllers {
       _db.SaveChanges();
 
       return View("Submitted");
+      // viewModel.ReasonForError = output;
+      // return View("Visit", viewModel);
     }
   
     [HttpPost]

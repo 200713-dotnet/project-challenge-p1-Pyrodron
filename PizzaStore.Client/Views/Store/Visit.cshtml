@@ -15,6 +15,7 @@
           <td>Name</td>
           <td>Size</td>
           <td>Cost</td>
+          <td>Crust</td>
           <td>Quantity</td>
         </tr>
         @for (int i = 0; i < Model.Menu.Count(); i++) {
@@ -26,6 +27,7 @@
             <td>@Html.DropDownListFor(m => m.Menu[i].SelectedSize, new SelectList(Enum.GetValues(typeof(Size))), "Select Size")</td>
             <td>@Html.HiddenFor(m => m.Menu[i].Cost)
             $@Html.DisplayFor(m => m.Menu[i].Cost)</td>
+            <td>@Html.DropDownListFor(m => m.Menu[i].SelectedCrust, new SelectList(Model.Crusts), "Select Crust")</td>
             <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0" }})</td>
           </tr>
         }
