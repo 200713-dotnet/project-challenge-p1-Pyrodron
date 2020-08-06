@@ -52,8 +52,16 @@ namespace PizzaStore.Client.Controllers {
           Console.WriteLine($"Unknown pizza found with ID {item.PizzaID} from store {item.StoreID} at menu ID {item.ID}");
         } else {
           pizzas.Add(pizza);
-          pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost});
+          CrustModel crust = _db.Crust.Where(c => c.ID == pizza.DefaultCrustID).SingleOrDefault();
+          pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID});
         }
+      }
+
+      List<SelectListItem> c = new List<SelectListItem>();
+      foreach (CrustModel crust in _db.Crust.ToList()) {
+        c.Add(new SelectListItem{
+          Text = crust.Name, Value = crust.ID.ToString()
+        });
       }
 
       StoreViewModel model = new StoreViewModel();
@@ -64,7 +72,7 @@ namespace PizzaStore.Client.Controllers {
       } catch (NullReferenceException) {
         // people can view menus if they're not logged in, but not order
       }
-      model.Crusts = _db.Crust.ToList();
+      model.Crusts = c;
 
       TempData["StoreID"] = store.ID;
       TempData.Keep("StoreID");
@@ -86,7 +94,14 @@ namespace PizzaStore.Client.Controllers {
 
       StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
       viewModel.StoreName = store.Name;
-      viewModel.Crusts = _db.Crust.ToList();  // reference needs to be re-established if an error occurs submitting the order
+      // reference needs to be re-established if an error occurs submitting the order
+      List<SelectListItem> c = new List<SelectListItem>();
+      foreach (CrustModel crust in _db.Crust.ToList()) {
+        c.Add(new SelectListItem{
+          Text = crust.Name, Value = crust.ID.ToString()
+        });
+      }
+      viewModel.Crusts = c;
 
       decimal overallCost = 0.00M;
       int overallQuantity = 0;
@@ -106,7 +121,12 @@ namespace PizzaStore.Client.Controllers {
             viewModel.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
             return View("Visit", viewModel);
           }
-          CrustModel crust = _db.Crust.Where(c => c.Name == selectedPizza.SelectedCrust).SingleOrDefault();
+
+          int crustID;
+          CrustModel crust = null;
+          if (int.TryParse(selectedPizza.SelectedCrust, out crustID)) {
+            crust = _db.Crust.Where(c => c.ID == crustID).SingleOrDefault();
+          }
           if (crust == null) {
             viewModel.ReasonForError = $"No crust was selected on the {selectedPizza.Name} pizza. Please try selecting a different crust.";
             return View("Visit", viewModel);
