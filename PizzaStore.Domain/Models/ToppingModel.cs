@@ -1,5 +1,5 @@
 namespace PizzaStore.Domain.Models {
-  public class CrustModel : AModel {
+  public class ToppingModel : AModel {
     public string Name { get; set; }
 
     public override string ToString() {

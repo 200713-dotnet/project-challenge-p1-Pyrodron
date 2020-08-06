@@ -10,6 +10,7 @@ namespace PizzaStore.Domain.Models {
     public string Size { get; set; }
     public int Quantity { get; set; }
     public int CrustID { get; set; }
+    public string Toppings { get; set; }
   }
   
 }

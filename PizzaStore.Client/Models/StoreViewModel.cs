@@ -9,6 +9,7 @@ namespace PizzaStore.Client.Models {
     public List<CheckModel> Menu { get; set; }
     public string ReasonForError { get; set; }
     public List<SelectListItem> Crusts { get; set; }
+    public List<ToppingModel> Toppings { get; set; }
   }
 
   public class CheckModel {
@@ -20,6 +21,7 @@ namespace PizzaStore.Client.Models {
     public decimal Cost { get; set; }
     public string SelectedCrust { get; set; }
     public int DefaultCrust { get; set; }
+    public ToppingViewModel[] SelectedToppings { get; set; }
   }
 
   public enum Size {

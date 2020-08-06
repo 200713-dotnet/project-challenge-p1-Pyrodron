@@ -46,6 +46,7 @@ namespace PizzaStore.Client.Controllers {
       List<MenuModel> items = _db.Menu.Where(m => m.StoreID == ID).ToList();
       List<PizzaModel> pizzas = new List<PizzaModel>();
       List<CheckModel> pizzasToSelectFrom = new List<CheckModel>();
+      List<ToppingModel> toppings = _db.Toppings.ToList();
       foreach (MenuModel item in items) {
         PizzaModel pizza = _db.Pizzas.Where(p => p.ID == item.PizzaID).SingleOrDefault();
         if (pizza == null) {
@@ -53,16 +54,22 @@ namespace PizzaStore.Client.Controllers {
         } else {
           pizzas.Add(pizza);
           CrustModel crust = _db.Crust.Where(c => c.ID == pizza.DefaultCrustID).SingleOrDefault();
-          pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID});
+          ToppingViewModel[] toppingsSelected = new ToppingViewModel[toppings.Count()];
+          for (int i = 0; i < toppingsSelected.Length; i++) {
+            ToppingModel topping = toppings[i];
+            toppingsSelected[i] = new ToppingViewModel{ID=topping.ID, Name=topping.Name, IsSelected=false};
+          }
+          //new bool[_db.Toppings.Count()]
+          pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID, SelectedToppings=toppingsSelected});
         }
       }
 
-      List<SelectListItem> c = new List<SelectListItem>();
+      List<SelectListItem> crustDropDownOptions = new List<SelectListItem>();
       foreach (CrustModel crust in _db.Crust.ToList()) {
-        c.Add(new SelectListItem{
+        crustDropDownOptions.Add(new SelectListItem{
           Text = crust.Name, Value = crust.ID.ToString()
         });
-      }
+      }  
 
       StoreViewModel model = new StoreViewModel();
       model.StoreName = store.Name;
@@ -72,7 +79,8 @@ namespace PizzaStore.Client.Controllers {
       } catch (NullReferenceException) {
         // people can view menus if they're not logged in, but not order
       }
-      model.Crusts = c;
+      model.Crusts = crustDropDownOptions;
+      model.Toppings = toppings;
 
       TempData["StoreID"] = store.ID;
       TempData.Keep("StoreID");
@@ -134,6 +142,13 @@ namespace PizzaStore.Client.Controllers {
 
           PizzaModel pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
           decimal costOfThesePizzas = pizza.Cost * (decimal) selectedPizza.Quantity;
+          string toppingIDs = "";
+          foreach (ToppingViewModel topping in selectedPizza.SelectedToppings) {
+            if (topping.IsSelected) {
+              toppingIDs += $"{topping.ID},";
+            }
+          }
+          toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
           _db.Orders.Add(new OrderModel{
             StoreID = storeID,
             PizzaID = pizza.ID,
@@ -142,7 +157,8 @@ namespace PizzaStore.Client.Controllers {
             Quantity = selectedPizza.Quantity,
             TotalCost = costOfThesePizzas,
             Size = selectedPizza.SelectedSize.ToString(),
-            CrustID = crust.ID
+            CrustID = crust.ID,
+            Toppings = toppingIDs
           });
           overallCost += costOfThesePizzas;
           overallQuantity += selectedPizza.Quantity;

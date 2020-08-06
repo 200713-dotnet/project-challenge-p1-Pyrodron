@@ -17,11 +17,14 @@
           <td>Cost</td>
           <td>Crust</td>
           <td>Quantity</td>
+          @foreach (ToppingViewModel topping in Model.Menu[0].SelectedToppings) { // all pizzas will have the same toppings available to select from
+            <td>@topping.Name</td>
+          }
         </tr>
         @for (int i = 0; i < Model.Menu.Count(); i++) {
           <tr>
             <td>@Html.CheckBoxFor(m => m.Menu[i].Checked)</td>
-            @Html.HiddenFor(m => m.Menu[i].ID)
+            @Html.HiddenFor(m => m.Menu[i].ID)  @* sets the ID in the menu item to be sent back to the client *@
             <td>@Html.HiddenFor(m => m.Menu[i].Name)
             @Html.DisplayFor(m => m.Menu[i].Name)</td>
             <td>@Html.DropDownListFor(m => m.Menu[i].SelectedSize, new SelectList(Enum.GetValues(typeof(Size))), "Select Size")</td>
@@ -31,6 +34,11 @@
               @Html.DropDownListFor(m => m.Menu[i].SelectedCrust, new SelectList(Model.Crusts, "Value", "Text", Model.Menu[i].DefaultCrust), new {@class = "form-control"})
             </td>
             <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0" }})</td>
+            @for (int j = 0; j < Model.Menu[i].SelectedToppings.Length; j++) {
+              <td>@Html.CheckBoxFor(m => m.Menu[i].SelectedToppings[j].IsSelected)</td>
+              @Html.HiddenFor(m => m.Menu[i].SelectedToppings[j].ID)
+              @Html.HiddenFor(m => m.Menu[i].SelectedToppings[j].Name)
+            }
           </tr>
         }
       </table>

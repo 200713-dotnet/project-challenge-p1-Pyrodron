@@ -17,13 +17,6 @@ namespace PizzaStore.Client {
           using (var scope = host.Services.CreateScope()) {
             IServiceProvider services = scope.ServiceProvider;
             using (var context = new PizzaStoreDbContext(services.GetRequiredService<DbContextOptions<PizzaStoreDbContext>>())) {
-              // context.Stores.AddRange(
-              //   new StoreModel {
-              //     Name = "Fricano's Pizza"
-              //   }, new StoreModel {
-              //     Name = "Hungry Howie's"
-              //   }
-              // );
               // context.Crust.AddRange(
               //   new CrustModel {
               //     Name = "Garlic Butter"
@@ -35,34 +28,6 @@ namespace PizzaStore.Client {
               //     Name = "Thin"
               //   }, new CrustModel {
               //     Name = "All"
-              //   }
-              // );
-              // context.Pizzas.AddRange(
-              //   new PizzaModel {
-              //     Name = "Supreme",
-              //     Cost = 15.00M,
-              //     Toppings = "black olives,sausage,pepperoni,mushroom,onion",
-              //     DefaultCrustID = 1
-              //   }, new PizzaModel {
-              //     Name = "Meatzza",
-              //     Cost = 10.00M,
-              //     Toppings = "bacon,ham,pepperoni,sausage",
-              //     DefaultCrustID = 2
-              //   }, new PizzaModel {
-              //     Name = "Pepperoni",
-              //     Cost = 5.00M,
-              //     Toppings = "pepperoni",
-              //     DefaultCrustID = 3
-              //   }, new PizzaModel {
-              //     Name = "Cheese",
-              //     Cost = 2.00M,
-              //     Toppings = null,
-              //     DefaultCrustID = 4
-              //   }, new PizzaModel {
-              //     Name = "Bread",
-              //     Cost = 1.00M,
-              //     Toppings = null,
-              //     DefaultCrustID = 5
               //   }
               // );
               // context.Menu.AddRange(
@@ -89,6 +54,62 @@ namespace PizzaStore.Client {
               //     PizzaID = 5
               //   }
               // );
+              // context.Pizzas.AddRange(
+              //   new PizzaModel {
+              //     Name = "Supreme",
+              //     Cost = 15.00M,
+              //     DefaultToppings = "black olives,sausage,pepperoni,mushroom,onion",
+              //     DefaultCrustID = 1
+              //   }, new PizzaModel {
+              //     Name = "Meatzza",
+              //     Cost = 10.00M,
+              //     DefaultToppings = "bacon,ham,pepperoni,sausage",
+              //     DefaultCrustID = 2
+              //   }, new PizzaModel {
+              //     Name = "Pepperoni",
+              //     Cost = 5.00M,
+              //     DefaultToppings = "pepperoni",
+              //     DefaultCrustID = 3
+              //   }, new PizzaModel {
+              //     Name = "Cheese",
+              //     Cost = 2.00M,
+              //     DefaultToppings = null,
+              //     DefaultCrustID = 4
+              //   }, new PizzaModel {
+              //     Name = "Bread",
+              //     Cost = 1.00M,
+              //     DefaultToppings = null,
+              //     DefaultCrustID = 5
+              //   }
+              // );
+              // context.Stores.AddRange(
+              //   new StoreModel {
+              //     Name = "Fricano's Pizza"
+              //   }, new StoreModel {
+              //     Name = "Hungry Howie's"
+              //   }
+              // );
+              // context.Toppings.AddRange(
+              //   new ToppingModel {
+              //     Name = "Black Olives"
+              //   }, new ToppingModel {
+              //     Name = "Sausage"
+              //   }, new ToppingModel {
+              //     Name = "Pepperoni"
+              //   }, new ToppingModel {
+              //     Name = "Mushroom"
+              //   }, new ToppingModel {
+              //     Name = "Onion"
+              //   }, new ToppingModel {
+              //     Name = "Bacon"
+              //   }, new ToppingModel {
+              //     Name = "Ham"
+              //   }, new ToppingModel {
+              //     Name = "Mozzarella Cheese"
+              //   }, new ToppingModel {
+              //     Name = "Provolone Cheese"
+              //   }
+              // );
 
               // foreach (CrustModel crust in context.Crust.ToList()) {
               //   context.Crust.Remove(crust);
@@ -104,7 +125,6 @@ namespace PizzaStore.Client {
               //   context.Orders.Remove(order);
               // }
               // context.Database.ExecuteSqlRaw("DBCC CHECKIDENT('Orders', RESEED, 0)");
-              // Console.WriteLine(context.Orders.Max(p => p.ID));
 
               // foreach (PizzaModel pizza in context.Pizzas.ToList()) {
               //   context.Pizzas.Remove(pizza);
