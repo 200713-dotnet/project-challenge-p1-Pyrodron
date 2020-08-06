@@ -72,46 +72,54 @@ namespace PizzaStore.Client.Controllers {
     }
 
     [HttpPost]
-    public IActionResult SubmitOrder(StoreViewModel model) {
-      int storeID = (int) TempData["StoreID"];
-      StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
-      model.StoreName = store.Name;
-
+    public IActionResult SubmitOrder(StoreViewModel viewModel) {
+      int storeID;
       try {
         _ = userLoggedIn;
+        storeID = (int) TempData["StoreID"];
       } catch (NullReferenceException) {
-        model.ReasonForError = "You are not logged into the system. You will only be able to view menus until you return to the main page and log in.";
-        return View("Visit", model);
+        viewModel.ReasonForError = "You are not logged into the system. You will only be able to view menus until you return to the main page and log in.";
+        return View("Visit", viewModel);
       }
 
-      string output = "";
-      foreach (CheckModel selectedPizza in model.Menu) {
-        output += $"{selectedPizza.ID} {selectedPizza.Name} {selectedPizza.Checked} {selectedPizza.SelectedSize} {selectedPizza.Cost} {selectedPizza.Quantity}<br>";
+      StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
+      viewModel.StoreName = store.Name;
+
+      // string output = "";
+      decimal overallCost = 0.00M;
+      foreach (CheckModel selectedPizza in viewModel.Menu) {
+        // output += $"{selectedPizza.ID} {selectedPizza.Name} {selectedPizza.Checked} {selectedPizza.SelectedSize} {selectedPizza.Cost} {selectedPizza.Quantity}<br>";
         if (selectedPizza.Checked) {
           string size = selectedPizza.SelectedSize.ToString().ToLower();
           if (!Regex.IsMatch(size, "small|medium|large")) {
-            model.ReasonForError = $"Invalid size on pizza {selectedPizza.Name}";
-            return View("Visit", model);
+            viewModel.ReasonForError = $"Invalid size on pizza {selectedPizza.Name}";
+            return View("Visit", viewModel);
           }
           if (selectedPizza.Quantity == 0) {
-            model.ReasonForError = $"{selectedPizza.Name} pizza must have a quantity greater than 0 if selected to be ordered";
-            return View("Visit", model);
+            viewModel.ReasonForError = $"{selectedPizza.Name} pizza must have a quantity greater than 0 if selected to be ordered";
+            return View("Visit", viewModel);
           } else if (selectedPizza.Quantity < 0) {
-            model.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
-            return View("Visit", model);
+            viewModel.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
+            return View("Visit", viewModel);
           }
           
           PizzaModel pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
+          decimal costOfThesePizzas = pizza.Cost * (decimal) selectedPizza.Quantity;
           _db.Orders.Add(new OrderModel{
             StoreID = storeID,
             PizzaID = pizza.ID,
             UserID = userLoggedIn,
             Created = DateTime.Now,
             Quantity = selectedPizza.Quantity,
-            TotalCost = pizza.Cost * (decimal) selectedPizza.Quantity,
+            TotalCost = costOfThesePizzas,
             Size = size.ToUpper()[0]
           });
+          overallCost += costOfThesePizzas;
         }
+      }
+      if (overallCost > 250.00M) {
+        viewModel.ReasonForError = "This order exceeds $250. Please remove some pizzas, then try again.";
+        return View("Visit", viewModel);
       }
       _db.SaveChanges();
 
