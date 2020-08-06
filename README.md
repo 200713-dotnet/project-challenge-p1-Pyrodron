@@ -30,20 +30,20 @@ The project should support objects of User, Store, Order, Pizza.
 + [required] each order must be able to view/list/edit its collection of pizzas ✔️
 + [required] each order must be able to compute its pricing ✔️
 + [required] each order must be limited to a total pricing of no more than $250 ✔️
-+ [required] each order must be limited to a collection of pizzas of no more than 50
++ [required] each order must be limited to a collection of pizzas of no more than 50 ✔️
 
 ### pizza
 
-+ [required] each pizza must be able to have a crust
-+ [required] each pizza must be able to have a size
-+ [required] each pizza must be able to have toppings
-+ [required] each pizza must be able to compute its pricing
++ [required] each pizza must be able to have a crust ✔️
++ [required] each pizza must be able to have a size ✔️
++ [required] each pizza must be able to have toppings ✔️
++ [required] each pizza must be able to compute its pricing ✔️
 + [required] each pizza must have no less than 2 default toppings
 + [required] each pizza must limit its toppings to no more 5
 
 ### user
 
-+ [required] must be able to view/list its order history
++ [required] must be able to view/list its order history ✔️
 + [required] must be able to only order from 1 location in a 24-hour period with no reset
 + [required] must be able to only order once every 2-hour period
 
@@ -64,20 +64,20 @@ The project should support objects of User, Store, Order, Pizza.
 
 as a user, i should be able to do this:
 
-+ access the application
-+ see a list of locations
-+ select a location
-+ place an order
++ access the application ✔️
++ see a list of locations ✔️
++ select a location ✔️
++ place an order ✔️
 + with either custom or preset pizzas
 + if custom
 + select crust, size and toppings
-+ if preset
-+ select pizza and its size
-+ see a tally of my order
-+ add or remove more pizzas
-+ and checkout when complete with latest order
-+ see my order history
-+ make a new order
++ if preset ✔️
++ select pizza and its size ✔️
++ see a tally of my order ✔️
++ add or remove more pizzas ✔️
++ and checkout when complete with latest order ✔️
++ see my order history ✔️
++ make a new order ✔️
 
 ## store story
 

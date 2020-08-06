@@ -112,7 +112,7 @@ namespace PizzaStore.Client.Controllers {
             Created = DateTime.Now,
             Quantity = selectedPizza.Quantity,
             TotalCost = costOfThesePizzas,
-            Size = size.ToUpper()[0]
+            Size = selectedPizza.SelectedSize.ToString()
           });
           overallCost += costOfThesePizzas;
           overallQuantity += selectedPizza.Quantity;

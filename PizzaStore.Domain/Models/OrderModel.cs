@@ -7,7 +7,7 @@ namespace PizzaStore.Domain.Models {
     public int UserID { get; set; }
     public DateTime Created { get; set; }
     public decimal TotalCost { get; set; }
-    public char Size { get; set; }
+    public string Size { get; set; }
     public int Quantity { get; set; }
   }
   

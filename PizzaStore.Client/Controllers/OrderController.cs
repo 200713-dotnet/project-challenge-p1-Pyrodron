@@ -33,7 +33,7 @@ namespace PizzaStore.Client.Controllers {
       Dictionary<int, Tuple<DateTime, StringBuilder, int, decimal, string>> orderDisplay = new Dictionary<int, Tuple<DateTime, StringBuilder, int, decimal, string>>(); // created, pizza list, quantity, cost, store name
       foreach (OrderModel order in orders) {
         PizzaModel pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault();
-        string size = order.Size == 'S' ? "Small" : order.Size == 'M' ? "Medium" : order.Size == 'L' ? "Large" : order.Size.ToString();
+        string size = order.Size;
         try {
           orderDisplay[order.ID].Item2.Append($", {size} {pizza.ToString()}");
         } catch (KeyNotFoundException) {
