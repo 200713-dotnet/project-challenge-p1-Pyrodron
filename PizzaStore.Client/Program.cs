@@ -58,27 +58,27 @@ namespace PizzaStore.Client {
               //   new PizzaModel {
               //     Name = "Supreme",
               //     Cost = 15.00M,
-              //     DefaultToppings = "black olives,sausage,pepperoni,mushroom,onion",
+              //     DefaultToppings = "1,2,3,4,5",
               //     DefaultCrustID = 1
               //   }, new PizzaModel {
               //     Name = "Meatzza",
               //     Cost = 10.00M,
-              //     DefaultToppings = "bacon,ham,pepperoni,sausage",
+              //     DefaultToppings = "6,7,3,2",
               //     DefaultCrustID = 2
               //   }, new PizzaModel {
               //     Name = "Pepperoni",
               //     Cost = 5.00M,
-              //     DefaultToppings = "pepperoni",
+              //     DefaultToppings = "3,8",
               //     DefaultCrustID = 3
               //   }, new PizzaModel {
               //     Name = "Cheese",
               //     Cost = 2.00M,
-              //     DefaultToppings = null,
+              //     DefaultToppings = "8,9",
               //     DefaultCrustID = 4
               //   }, new PizzaModel {
               //     Name = "Bread",
               //     Cost = 1.00M,
-              //     DefaultToppings = null,
+              //     DefaultToppings = "3,8",
               //     DefaultCrustID = 5
               //   }
               // );

@@ -51,17 +51,26 @@ namespace PizzaStore.Client.Controllers {
         PizzaModel pizza = _db.Pizzas.Where(p => p.ID == item.PizzaID).SingleOrDefault();
         if (pizza == null) {
           Console.WriteLine($"Unknown pizza found with ID {item.PizzaID} from store {item.StoreID} at menu ID {item.ID}");
-        } else {
-          pizzas.Add(pizza);
-          CrustModel crust = _db.Crust.Where(c => c.ID == pizza.DefaultCrustID).SingleOrDefault();
-          ToppingViewModel[] toppingsSelected = new ToppingViewModel[toppings.Count()];
-          for (int i = 0; i < toppingsSelected.Length; i++) {
-            ToppingModel topping = toppings[i];
-            toppingsSelected[i] = new ToppingViewModel{ID=topping.ID, Name=topping.Name, IsSelected=false};
-          }
-          //new bool[_db.Toppings.Count()]
-          pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID, SelectedToppings=toppingsSelected});
+          continue;
         }
+
+        string[] temp = pizza.DefaultToppings.Split(',');
+        int[] defaultToppingIDs = new int[temp.Length];
+        for (int i = 0; i < temp.Length; i++) {
+          if (!int.TryParse(temp[i], out defaultToppingIDs[i])) {
+            Console.WriteLine($"Database error: Expected integer for default topping ID in pizza {pizza.ID}, got {temp[i]}");
+            continue;
+          }
+        }
+        
+        pizzas.Add(pizza);
+        CrustModel crust = _db.Crust.Where(c => c.ID == pizza.DefaultCrustID).SingleOrDefault();
+        ToppingViewModel[] toppingsSelected = new ToppingViewModel[toppings.Count()];
+        for (int i = 0; i < toppingsSelected.Length; i++) {
+          ToppingModel topping = toppings[i];
+          toppingsSelected[i] = new ToppingViewModel{ID=topping.ID, Name=topping.Name, IsSelected=defaultToppingIDs.Contains(topping.ID)};
+        }
+        pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID, SelectedToppings=toppingsSelected});
       }
 
       List<SelectListItem> crustDropDownOptions = new List<SelectListItem>();
@@ -153,12 +162,19 @@ namespace PizzaStore.Client.Controllers {
           PizzaModel pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
           decimal costOfThesePizzas = pizza.Cost * (decimal) selectedPizza.Quantity;
           string toppingIDs = "";
+          int toppingCount = 0;
           foreach (ToppingViewModel topping in selectedPizza.SelectedToppings) {
             if (topping.IsSelected) {
               toppingIDs += $"{topping.ID},";
+              toppingCount++;
             }
           }
+          if (toppingCount > 5) {
+            viewModel.ReasonForError = $"{selectedPizza.Name} has more than 5 toppings selected. Please uncheck some toppings on this pizza.";
+            return View("Visit", viewModel);
+          }
           toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
+
 
           _db.Orders.Add(new OrderModel{
             OrderID = max + 1,
