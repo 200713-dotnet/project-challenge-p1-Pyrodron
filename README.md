@@ -68,9 +68,9 @@ as a user, i should be able to do this:
 + see a list of locations ✔️
 + select a location ✔️
 + place an order ✔️
-+ with either custom or preset pizzas
-+ if custom
-+ select crust, size and toppings
++ with either custom or preset pizzas ✔️
++ if custom ✔️
++ select crust, size and toppings ✔️
 + if preset ✔️
 + select pizza and its size ✔️
 + see a tally of my order ✔️

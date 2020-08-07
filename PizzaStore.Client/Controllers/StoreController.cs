@@ -122,14 +122,14 @@ namespace PizzaStore.Client.Controllers {
 
       bool submitOrderClicked = Request.Form["SubmitOrder"].ToString() != "";
       bool addCustomPizzaClicked = Request.Form["AddCustom"].ToString() != "";
+      bool backButtonClicked = Request.Form["Back"].ToString() != "";
+      int buttonsClicked = (submitOrderClicked ? 1 : 0) + (addCustomPizzaClicked ? 1 : 0) + (backButtonClicked ? 1 : 0);
 
-      if (submitOrderClicked && addCustomPizzaClicked) {
-        Console.WriteLine("Both buttons registered as clicked on the menu page");
+      if (buttonsClicked > 1) {
+        Console.WriteLine("Multiple buttons registered as clicked on the menu page");
         model.ReasonForError = "There was a problem processing your request. Please try again.";
         return View("Visit", model);
-      }
-
-      if (submitOrderClicked) {
+      } else if (submitOrderClicked) {
         decimal overallCost = 0.00M;
         int overallQuantity = 0;
 
@@ -232,18 +232,14 @@ namespace PizzaStore.Client.Controllers {
           toppingsSelected[i] = new ToppingViewModel{ID=topping.ID, Name=topping.Name, IsSelected=false};
         }
         model.Menu.Add(new CheckModel{ID=0, Name="Custom", Checked=true, Cost=20.00M, DefaultCrust=0, SelectedToppings=toppingsSelected});
-        // model.ReasonForError = checkPizzas.Count().ToString();
         return View("Visit", model);
-      } else {
-        Console.WriteLine("Request to submit order or add custom pizza was sent but no buttons registered as clicked");
+      } else if (backButtonClicked) {
+        return Redirect("/User/StoreSelection");
+      } else {  // no buttons check is placed down here to remove the 'not all code paths return a value' error
+        Console.WriteLine("Request was sent but no buttons registered as clicked");
         model.ReasonForError = "There was a problem processing your request. Please try again.";
         return View("Visit", model);
       }
-    }
-  
-    [HttpPost]
-    public IActionResult BackToStoreSelection() {
-      return Redirect("/User/StoreSelection");
     }
   }
 }
