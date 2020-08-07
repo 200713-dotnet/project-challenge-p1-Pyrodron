@@ -43,8 +43,12 @@
         }
       </table>
       <br>
-      <input type="submit" value="Submit">
+      <input type="submit" value="Submit" name="SubmitOrder">
+      <input type="submit" value="Add a Custom Pizza" name="AddCustom">
     }
+    @* @using (Html.BeginForm("AddCustomPizza", "Store", FormMethod.Post)) {
+      <input type="submit" value="Add Custom Pizza">
+    } *@
     @using (Html.BeginForm("BackToStoreSelection", "Store", FormMethod.Post)) {
       <input type="submit" value="Back">
     }

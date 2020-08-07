@@ -45,17 +45,27 @@ namespace PizzaStore.Client.Controllers {
           toppings.Append($"{top.Name}, ");
         }
         toppings.Remove(toppings.Length - 2, 2);
-        orderHistory.Add(new OrderViewClass{
+        OrderViewClass orderView = new OrderViewClass{
           OrderID = order.OrderID,
           Created = order.Created,
-          Pizzas = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name,
           Size = order.Size,
           Crust = _db.Crust.Where(c => c.ID == order.CrustID).SingleOrDefault().Name,
           Toppings = toppings.ToString(),
           Quantity = order.Quantity,
           Cost = order.TotalCost,
           StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
-        });
+        };
+        if (order.PizzaID == 0) {
+          orderView.Pizzas = "Custom";
+        } else {
+          try {
+            orderView.Pizzas = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+          } catch (NullReferenceException) {
+            Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
+            orderView.Pizzas = "Error";
+          }
+        }
+        orderHistory.Add(orderView);
       }
       model.OrderHistory = orderHistory;
       return View(model);

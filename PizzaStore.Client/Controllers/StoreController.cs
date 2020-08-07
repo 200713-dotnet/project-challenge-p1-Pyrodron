@@ -22,7 +22,7 @@ namespace PizzaStore.Client.Controllers {
     public StoreController(PizzaStoreDbContext context) { // dependency injection handled by dotnet will pass the active DbContext instance here
       _db = context;
     }
-
+    
     [HttpGet]
     public IActionResult Visit(int ID) {
       StoreModel store;
@@ -98,19 +98,19 @@ namespace PizzaStore.Client.Controllers {
     }
 
     [HttpPost]
-    public IActionResult SubmitOrder(StoreViewModel viewModel) {
+    public IActionResult SubmitOrder(StoreViewModel model) {
       int storeID;
       try {
         _ = userLoggedIn;
         storeID = (int) TempData["StoreID"];
         TempData.Keep("StoreID");
       } catch (NullReferenceException) {
-        viewModel.ReasonForError = "You are not logged into the system. You will only be able to view menus until you return to the main page and log in.";
-        return View("Visit", viewModel);
+        model.ReasonForError = "You are not logged into the system. You will only be able to view menus until you return to the main page and log in.";
+        return View("Visit", model);
       }
 
       StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
-      viewModel.StoreName = store.Name;
+      model.StoreName = store.Name;
       // reference needs to be re-established if an error occurs submitting the order
       List<SelectListItem> c = new List<SelectListItem>();
       foreach (CrustModel crust in _db.Crust.ToList()) {
@@ -118,92 +118,127 @@ namespace PizzaStore.Client.Controllers {
           Text = crust.Name, Value = crust.ID.ToString()
         });
       }
-      viewModel.Crusts = c;
+      model.Crusts = c;
 
-      decimal overallCost = 0.00M;
-      int overallQuantity = 0;
-      string output = "";
+      bool submitOrderClicked = Request.Form["SubmitOrder"].ToString() != "";
+      bool addCustomPizzaClicked = Request.Form["AddCustom"].ToString() != "";
 
-      int max = 0;
-      try {
-        max = _db.Orders.Max(o => o.OrderID);
-      } catch (InvalidOperationException e) { // orders table might be empty - dotnet still prints the exceptions even when caught
-        if (!e.Message.Contains("Sequence contains no elements")) {
-          throw e;
-        }
+      if (submitOrderClicked && addCustomPizzaClicked) {
+        Console.WriteLine("Both buttons registered as clicked on the menu page");
+        model.ReasonForError = "There was a problem processing your request. Please try again.";
+        return View("Visit", model);
       }
 
-      foreach (CheckModel selectedPizza in viewModel.Menu) {
-        output += $"{selectedPizza.SelectedCrust}<br>";
-        if (selectedPizza.Checked) {
-          string size = selectedPizza.SelectedSize.ToString().ToLower();
-          if (Enum.IsDefined(typeof(Size), size)) {
-            viewModel.ReasonForError = $"Invalid size on pizza {selectedPizza.Name}";
-            return View("Visit", viewModel);
-          }
-          if (selectedPizza.Quantity == 0) {
-            viewModel.ReasonForError = $"{selectedPizza.Name} pizza must have a quantity greater than 0 if selected to be ordered";
-            return View("Visit", viewModel);
-          } else if (selectedPizza.Quantity < 0) {
-            viewModel.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
-            return View("Visit", viewModel);
-          }
+      if (submitOrderClicked) {
+        decimal overallCost = 0.00M;
+        int overallQuantity = 0;
 
-          int crustID;
-          CrustModel crust = null;
-          if (int.TryParse(selectedPizza.SelectedCrust, out crustID)) {
-            crust = _db.Crust.Where(c => c.ID == crustID).SingleOrDefault();
+        int max = 0;
+        try {
+          max = _db.Orders.Max(o => o.OrderID);
+        } catch (InvalidOperationException e) { // orders table might be empty - dotnet still prints the exceptions even when caught
+          if (!e.Message.Contains("Sequence contains no elements")) {
+            throw e;
           }
-          if (crust == null) {
-            viewModel.ReasonForError = $"No crust was selected on the {selectedPizza.Name} pizza. Please try selecting a different crust.";
-            return View("Visit", viewModel);
-          }
+        }
 
-          PizzaModel pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
-          decimal costOfThesePizzas = pizza.Cost * (decimal) selectedPizza.Quantity;
-          string toppingIDs = "";
-          int toppingCount = 0;
-          foreach (ToppingViewModel topping in selectedPizza.SelectedToppings) {
-            if (topping.IsSelected) {
-              toppingIDs += $"{topping.ID},";
-              toppingCount++;
+        foreach (CheckModel selectedPizza in model.Menu) {
+          if (selectedPizza.Checked) {
+            string size = selectedPizza.SelectedSize.ToString().ToLower();
+            if (Enum.IsDefined(typeof(Size), size)) {
+              model.ReasonForError = $"Invalid size on pizza {selectedPizza.Name}";
+              return View("Visit", model);
             }
-          }
-          if (toppingCount > 5) {
-            viewModel.ReasonForError = $"{selectedPizza.Name} has more than 5 toppings selected. Please uncheck some toppings on this pizza.";
-            return View("Visit", viewModel);
-          }
-          toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
+            if (selectedPizza.Quantity == 0) {
+              model.ReasonForError = $"{selectedPizza.Name} pizza must have a quantity greater than 0 if selected to be ordered";
+              return View("Visit", model);
+            } else if (selectedPizza.Quantity < 0) {
+              model.ReasonForError = $"{selectedPizza.Name} pizza must have a positive quantity greater";
+              return View("Visit", model);
+            }
+
+            int crustID;
+            CrustModel crust = null;
+            if (int.TryParse(selectedPizza.SelectedCrust, out crustID)) {
+              crust = _db.Crust.Where(c => c.ID == crustID).SingleOrDefault();
+            }
+            if (crust == null) {
+              model.ReasonForError = $"No crust was selected on the {selectedPizza.Name} pizza. Please try selecting a different crust.";
+              return View("Visit", model);
+            }
+
+            PizzaModel pizza;
+            if (selectedPizza.ID != 0) {
+              pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
+            } else {
+              pizza = new PizzaModel {
+                Cost = 20.00M
+              };
+            }
+            if (pizza == null) {
+              Console.WriteLine($"Unknown pizza with ID {selectedPizza.ID} submitted; skipping");
+              continue;
+            }
+            decimal costOfThesePizzas = pizza.Cost * (decimal) selectedPizza.Quantity;
+            string toppingIDs = "";
+            int toppingCount = 0;
+            foreach (ToppingViewModel topping in selectedPizza.SelectedToppings) {
+              if (topping.IsSelected) {
+                toppingIDs += $"{topping.ID},";
+                toppingCount++;
+              }
+            }
+            if (toppingCount > 5) {
+              model.ReasonForError = $"{selectedPizza.Name} has more than 5 toppings selected. Please uncheck some toppings on this pizza.";
+              return View("Visit", model);
+            }
+            toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
 
 
-          _db.Orders.Add(new OrderModel{
-            OrderID = max + 1,
-            StoreID = storeID,
-            PizzaID = pizza.ID,
-            UserID = userLoggedIn,
-            Created = DateTime.Now,
-            Quantity = selectedPizza.Quantity,
-            TotalCost = costOfThesePizzas,
-            Size = selectedPizza.SelectedSize.ToString(),
-            CrustID = crust.ID,
-            Toppings = toppingIDs
-          });
-          overallCost += costOfThesePizzas;
-          overallQuantity += selectedPizza.Quantity;
+            _db.Orders.Add(new OrderModel{
+              OrderID = max + 1,
+              StoreID = storeID,
+              PizzaID = pizza.ID,
+              UserID = userLoggedIn,
+              Created = DateTime.Now,
+              Quantity = selectedPizza.Quantity,
+              TotalCost = costOfThesePizzas,
+              Size = selectedPizza.SelectedSize.ToString(),
+              CrustID = crust.ID,
+              Toppings = toppingIDs
+            });
+            overallCost += costOfThesePizzas;
+            overallQuantity += selectedPizza.Quantity;
+          }
         }
-      }
-      if (overallCost > 250.00M) {
-        viewModel.ReasonForError = "This order exceeds $250. Please remove some pizzas, then try again.";
-        return View("Visit", viewModel);
-      } else if (overallQuantity > 50) {
-        viewModel.ReasonForError = "This order exceeds 50 pizzas. Please remove some pizzas, then try again.";
-        return View("Visit", viewModel);
-      }
-      _db.SaveChanges();
+        if (overallCost > 250.00M) {
+          model.ReasonForError = "This order exceeds $250. Please remove some pizzas, then try again.";
+          return View("Visit", model);
+        } else if (overallQuantity > 50) {
+          model.ReasonForError = "This order exceeds 50 pizzas. Please remove some pizzas, then try again.";
+          return View("Visit", model);
+        } else if (overallQuantity == 0) {
+          model.ReasonForError = "There are no pizzas in this order. Please add some pizzas, then try again.";
+          return View("Visit", model);
+        }
+        _db.SaveChanges();
 
-      return View("Submitted");
-      // viewModel.ReasonForError = output;
-      // return View("Visit", viewModel);
+        return View("Submitted");
+      } else if (addCustomPizzaClicked) {
+        List<ToppingModel> toppings = _db.Toppings.ToList();
+        ToppingViewModel[] toppingsSelected = new ToppingViewModel[toppings.Count()];
+        for (int i = 0; i < toppingsSelected.Length; i++) {
+          ToppingModel topping = toppings[i];
+          toppingsSelected[i] = new ToppingViewModel{ID=topping.ID, Name=topping.Name, IsSelected=false};
+        }
+        model.Menu.Add(new CheckModel{ID=0, Name="Custom", Checked=true, Cost=20.00M, DefaultCrust=0, SelectedToppings=toppingsSelected});
+        // model.ReasonForError = checkPizzas.Count().ToString();
+        return View("Visit", model);
+      } else {
+        Console.WriteLine("Request to submit order or add custom pizza was sent but no buttons registered as clicked");
+        model.ReasonForError = "There was a problem processing your request. Please try again.";
+        return View("Visit", model);
+      }
     }
   
     [HttpPost]

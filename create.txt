@@ -21,7 +21,7 @@ mkdir PizzaStore.Domain/Models
 dotnet new xunit -n PizzaStore.Testing
 dotnet sln add **/*.csproj
 touch PizzaStore.Storing/PizzaStoreDbContext.cs
-~/.dotnet/tools/dotnet-ef migrations add 'migration 18' -s PizzaStore.Client/PizzaStore.Client.csproj -p PizzaStore.Storing/PizzaStore.Storing.csproj
+~/.dotnet/tools/dotnet-ef migrations add 'migration 19' -s PizzaStore.Client/PizzaStore.Client.csproj -p PizzaStore.Storing/PizzaStore.Storing.csproj
 ~/.dotnet/tools/dotnet-ef database update -s PizzaStore.Client/PizzaStore.Client.csproj -p PizzaStore.Storing/PizzaStore.Storing.csproj
 dotnet watch -p PizzaStore.Client/PizzaStore.Client.csproj run
 
