@@ -191,6 +191,9 @@ namespace PizzaStore.Client.Controllers {
             if (toppingCount > 5) {
               model.ReasonForError = $"{selectedPizza.Name} has more than 5 toppings selected. Please uncheck some toppings on this pizza.";
               return View("Visit", model);
+            } else if (toppingCount < 2) {
+              model.ReasonForError = $"{selectedPizza.Name} needs at least 2 toppings selected. Please add some more toppings on this pizza.";
+              return View("Visit", model);
             }
             toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
 

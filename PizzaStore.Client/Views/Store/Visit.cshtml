@@ -35,7 +35,17 @@
             </td>
             <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0" }})</td>
             @for (int j = 0; j < Model.Menu[i].SelectedToppings.Length; j++) {
-              <td>@Html.CheckBoxFor(m => m.Menu[i].SelectedToppings[j].IsSelected)</td>
+              @if (Model.Menu[i].ID == 0) {
+                <td>@Html.CheckBoxFor(m => m.Menu[i].SelectedToppings[j].IsSelected)</td>
+              } else {
+                @if (Model.Menu[i].SelectedToppings[j].IsSelected) {
+                  <td>✔️</td>
+                } else {
+                  <td>❌</td>
+                }
+                @Html.HiddenFor(m => m.Menu[i].SelectedToppings[j].IsSelected)
+              }
+
               @Html.HiddenFor(m => m.Menu[i].SelectedToppings[j].ID)
               @Html.HiddenFor(m => m.Menu[i].SelectedToppings[j].Name)
             }
