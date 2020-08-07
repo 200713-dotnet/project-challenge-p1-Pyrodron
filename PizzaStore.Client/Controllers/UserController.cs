@@ -50,39 +50,54 @@ namespace PizzaStore.Client.Controllers {
     }
 
     public IActionResult OptionSelected(UserViewModel model) {
-      try {
-        _ = userLoggedIn;
-      } catch (NullReferenceException) {
-        model.ReasonForError = "You are not logged in. Please return to the main page, log in, and try again.";
-        return View("Error", model);
-      }
-      int option = model.OptionSelected;
-      if (option == 0) {
-        Console.WriteLine("Impossible for store ID to be 0; User is probably not logged in");
-        model.ReasonForError = "An invalid store selection has been made. This could be caused by being improperly logged in. Please return to the main page and try again.";
-        return View("Error", model);
-      } else if (option == -1) {
-        return Redirect("/Order/OrderHistory");
-      }
-      StoreModel foundStore = null;
-      foreach (StoreModel store in _db.Stores.ToList()) {
-        if (store.ID == option) {
-          foundStore = store;
-          break;
+      model.Name = _db.Users.Where(u => u.ID == userLoggedIn).SingleOrDefault().Name;
+      model.Stores = _db.Stores.ToList();
+
+      bool submitSelectionClicked = Request.Form["SubmitSelection"].ToString() != "";
+      bool logOutClicked = Request.Form["LogOut"].ToString() != "";
+      int buttonsClicked = (submitSelectionClicked ? 1 : 0) + (logOutClicked ? 1 : 0);
+      
+      if (buttonsClicked > 1) {
+        Console.WriteLine("Multiple buttons registered as click on the store selection");
+        model.ReasonForError = "There was a problem processing your request. Please try again.";
+        return View(model);
+      } else if (submitSelectionClicked) {
+        try {
+          _ = userLoggedIn;
+        } catch (NullReferenceException) {
+          model.ReasonForError = "You are not logged in. Please return to the main page, log in, and try again.";
+          return View("Error", model);
         }
-      }
-      if (foundStore == null) {
-        Console.WriteLine("Unknown store ID given; Could not find store");
-        model.ReasonForError = "An invalid store selection has been made. This could be caused by being improperly logged in. Please return to the main page and try again.";
-        return View("Error", model);
-      }
+        int option = model.OptionSelected;
+        if (option == 0) {
+          Console.WriteLine("Impossible for store ID to be 0; User is probably not logged in");
+          model.ReasonForError = "An invalid store selection has been made. This could be caused by being improperly logged in. Please return to the main page and try again.";
+          return View("Error", model);
+        } else if (option == -1) {
+          return Redirect("/Order/OrderHistory");
+        }
+        StoreModel foundStore = null;
+        foreach (StoreModel store in _db.Stores.ToList()) {
+          if (store.ID == option) {
+            foundStore = store;
+            break;
+          }
+        }
+        if (foundStore == null) {
+          Console.WriteLine("Unknown store ID given; Could not find store");
+          model.ReasonForError = "An invalid store selection has been made. This could be caused by being improperly logged in. Please return to the main page and try again.";
+          return View("Error", model);
+        }
 
-      return Redirect($"/Store/Visit?ID={foundStore.ID}");
-    }
-
-    public IActionResult LogOut() {
-      TempData.Remove("UserID");
-      return Redirect("/");
+        return Redirect($"/Store/Visit?ID={foundStore.ID}");
+      } else if (logOutClicked) {
+        TempData.Remove("UserID");
+        return Redirect("/");
+      } else {  // no buttons check is placed down here to remove the 'not all code paths return a value' error
+        Console.WriteLine("Request sent but no buttons registered as clicked on the store selection");
+        model.ReasonForError = "There was a problem processing your request. Please try again.";
+        return View(model);
+      }
     }
   }
 }

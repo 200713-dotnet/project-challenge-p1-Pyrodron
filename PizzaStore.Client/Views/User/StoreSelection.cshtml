@@ -13,9 +13,8 @@
     }
     @Html.RadioButtonFor(model => model.OptionSelected, -1)<span> View Order History</span>
     
-    <br><br><input type="submit" value="Submit">
-  }
-  @using (Html.BeginForm("LogOut", "User", FormMethod.Post)) {
-    <input type="submit" value="Log Out">
+    <br><br><input type="submit" value="Submit" name="SubmitSelection">
+    <input type="submit" value="Log Out" name="LogOut">
+    <br><br>@Model.ReasonForError
   }
 </main>
