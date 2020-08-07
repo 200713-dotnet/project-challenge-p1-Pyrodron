@@ -8,6 +8,7 @@
 <main>
   <table style="width: 100%">
     <tr>
+      <th>ID</th>
       <th>Order Created</th>
       <th>Pizzas in Order</th>
       <th>Crust</th>
@@ -16,7 +17,19 @@
       <th>Cost of Order</th>
       <th>Store Ordered From</th>
     </tr>
-      @foreach (int orderID in Model.OrderHistory.Keys) {
+      @foreach (OrderViewClass order in Model.OrderHistory) {
+        <tr>
+          <td>@order.ID</td>
+          <td>@order.Created</td>
+          <td>@order.Pizzas</td>
+          <td>@order.Crust</td>
+          <td>@order.Toppings</td>
+          <td>@order.Quantity</td>
+          <td>@order.Cost</td>
+          <td>@order.StoreName</td>
+        </tr>
+      }
+      @* @foreach (int orderID in Model.OrderHistory.Keys) {
         <tr>
           <td>@Model.OrderHistory[orderID].Item1</td>
           <td>@Model.OrderHistory[orderID].Item2</td>
@@ -26,7 +39,7 @@
           <td>@string.Format("${0:N2}", Model.OrderHistory[orderID].Item6)</td>
           <td>@Model.OrderHistory[orderID].Item7</td>
         </tr>
-      }
+      } *@
   </table>
   @using (Html.BeginForm("BackToSelection", "Order", FormMethod.Post)) {
     <input type="submit" value="Go Back">
