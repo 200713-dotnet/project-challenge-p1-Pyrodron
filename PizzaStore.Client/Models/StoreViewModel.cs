@@ -19,7 +19,7 @@ namespace PizzaStore.Client.Models {
     public Size SelectedSize { get; set; }
     public int Quantity { get; set; }
     public decimal Cost { get; set; }
-    public string SelectedCrust { get; set; }
+    public string SelectedCrust { get; set; } // crust ID to string
     public int DefaultCrust { get; set; }
     public ToppingViewModel[] SelectedToppings { get; set; }
   }

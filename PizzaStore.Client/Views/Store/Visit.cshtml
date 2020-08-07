@@ -9,7 +9,7 @@
   <section>
     <p>What would you like to order?</p>
     @using (Html.BeginForm("SubmitOrder", "Store", FormMethod.Post)) {
-      <table>
+      <table style="width: 100%">
         <tr>
           <td>Select</td>
           <td>Name</td>
@@ -31,7 +31,12 @@
             <td>@Html.HiddenFor(m => m.Menu[i].Cost)
             $@Html.DisplayFor(m => m.Menu[i].Cost)</td>
             <td>
-              @Html.DropDownListFor(m => m.Menu[i].SelectedCrust, new SelectList(Model.Crusts, "Value", "Text", Model.Menu[i].DefaultCrust), new {@class = "form-control"})
+              @if (Model.Menu[i].ID == 0) {
+                @Html.DropDownListFor(m => m.Menu[i].SelectedCrust, new SelectList(Model.Crusts, "Value", "Text", Model.Menu[i].DefaultCrust), new {@class = "form-control"})
+              } else {
+                @Model.Crusts[int.Parse(Model.Menu[i].SelectedCrust) - 1].Text
+                @Html.HiddenFor(m => m.Menu[i].SelectedCrust)
+              }
             </td>
             <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0" }})</td>
             @for (int j = 0; j < Model.Menu[i].SelectedToppings.Length; j++) {

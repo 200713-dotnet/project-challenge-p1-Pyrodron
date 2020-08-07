@@ -70,7 +70,7 @@ namespace PizzaStore.Client.Controllers {
           ToppingModel topping = toppings[i];
           toppingsSelected[i] = new ToppingViewModel{ID=topping.ID, Name=topping.Name, IsSelected=defaultToppingIDs.Contains(topping.ID)};
         }
-        pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID, SelectedToppings=toppingsSelected});
+        pizzasToSelectFrom.Add(new CheckModel{ID=pizza.ID, Name=pizza.Name, Checked=false, Cost=pizza.Cost, DefaultCrust=crust.ID, SelectedCrust=crust.ID.ToString(), SelectedToppings=toppingsSelected});
       }
 
       List<SelectListItem> crustDropDownOptions = new List<SelectListItem>();
@@ -243,6 +243,11 @@ namespace PizzaStore.Client.Controllers {
         model.ReasonForError = "There was a problem processing your request. Please try again.";
         return View("Visit", model);
       }
+    }
+
+    [HttpPost]
+    public IActionResult BackToStoreSelection() {
+      return Redirect("/User/StoreSelection");
     }
   }
 }
