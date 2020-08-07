@@ -18,7 +18,7 @@ namespace PizzaStore.Storing {
     protected override void OnModelCreating(ModelBuilder builder) {
       builder.Entity<CrustModel>().HasKey(e => e.ID);
       builder.Entity<MenuModel>().HasKey(e => e.ID);
-      builder.Entity<OrderModel>().HasKey(e => e.ID);
+      // builder.Entity<OrderModel>().HasKey(e => e.ID);
       builder.Entity<OrderModel>().Property(e => e.TotalCost).HasColumnType("decimal(18, 2)");
       builder.Entity<PizzaModel>().HasKey(e => e.ID);
       builder.Entity<PizzaModel>().Property(e => e.Cost).HasColumnType("decimal(18, 2)");

@@ -8,19 +8,40 @@
 <main>
   <table style="width: 100%">
     <tr>
-      <th>ID</th>
+      <th>Order ID</th>
       <th>Order Created</th>
+      <th>Store Ordered From</th>
+      <th>Size</th>
       <th>Pizzas in Order</th>
       <th>Crust</th>
       <th>Toppings</th>
       <th>Quantity</th>
       <th>Cost of Order</th>
-      <th>Store Ordered From</th>
     </tr>
-      @foreach (OrderViewClass order in Model.OrderHistory) {
+    @for (int i = 0; i < Model.OrderHistory.Count; i++) {
+      <tr>
+        @if (i == 0 || Model.OrderHistory[i - 1].OrderID != Model.OrderHistory[i].OrderID) {
+          <td>@Model.OrderHistory[i].OrderID</td>
+          <td>@Model.OrderHistory[i].Created</td>
+          <td>@Model.OrderHistory[i].StoreName</td>
+        } else {
+          <td></td>
+          <td></td>
+          <td></td>
+        }
+        <td>@Model.OrderHistory[i].Size</td>
+        <td>@Model.OrderHistory[i].Pizzas</td>
+        <td>@Model.OrderHistory[i].Crust</td>
+        <td>@Model.OrderHistory[i].Toppings</td>
+        <td>@Model.OrderHistory[i].Quantity</td>
+        <td>@Model.OrderHistory[i].Cost</td>
+      </tr>
+    }
+      @* @foreach (OrderViewClass order in Model.OrderHistory) {
         <tr>
-          <td>@order.ID</td>
+          <td>@order.OrderID</td>
           <td>@order.Created</td>
+          <td>@order.Size</td>
           <td>@order.Pizzas</td>
           <td>@order.Crust</td>
           <td>@order.Toppings</td>
@@ -28,7 +49,7 @@
           <td>@order.Cost</td>
           <td>@order.StoreName</td>
         </tr>
-      }
+      } *@
   </table>
   @using (Html.BeginForm("BackToSelection", "Order", FormMethod.Post)) {
     <input type="submit" value="Go Back">

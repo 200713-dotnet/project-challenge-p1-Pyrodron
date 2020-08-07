@@ -30,11 +30,12 @@ namespace PizzaStore.Client.Controllers {
         model.ReasonForError = "You are not logged in. Please return to the main page to login and try again.";
         return View("Error", model);
       }
+
       List<OrderViewClass> orderHistory = new List<OrderViewClass>();
       foreach (OrderModel order in orders) {
         PizzaModel pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault();
         orderHistory.Add(new OrderViewClass{
-          ID = order.ID,
+          OrderID = order.OrderID,
           Created = order.Created,
           Pizzas = pizza.ToString(),
           Size = order.Size,

@@ -114,6 +114,16 @@ namespace PizzaStore.Client.Controllers {
       decimal overallCost = 0.00M;
       int overallQuantity = 0;
       string output = "";
+
+      int max = 0;
+      try {
+        max = _db.Orders.Max(o => o.OrderID);
+      } catch (InvalidOperationException e) { // orders table might be empty - dotnet still prints the exceptions even when caught
+        if (!e.Message.Contains("Sequence contains no elements")) {
+          throw e;
+        }
+      }
+
       foreach (CheckModel selectedPizza in viewModel.Menu) {
         output += $"{selectedPizza.SelectedCrust}<br>";
         if (selectedPizza.Checked) {
@@ -149,7 +159,9 @@ namespace PizzaStore.Client.Controllers {
             }
           }
           toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
+
           _db.Orders.Add(new OrderModel{
+            OrderID = max + 1,
             StoreID = storeID,
             PizzaID = pizza.ID,
             UserID = userLoggedIn,

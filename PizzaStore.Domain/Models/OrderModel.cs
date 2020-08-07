@@ -2,6 +2,7 @@ using System;
 
 namespace PizzaStore.Domain.Models {
   public class OrderModel : AModel {
+    public int OrderID { get; set; }
     public int StoreID { get; set; }
     public int PizzaID { get; set; }
     public int UserID { get; set; }
