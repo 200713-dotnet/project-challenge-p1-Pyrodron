@@ -29,17 +29,6 @@
           <td>@order.StoreName</td>
         </tr>
       }
-      @* @foreach (int orderID in Model.OrderHistory.Keys) {
-        <tr>
-          <td>@Model.OrderHistory[orderID].Item1</td>
-          <td>@Model.OrderHistory[orderID].Item2</td>
-          <td>@Model.OrderHistory[orderID].Item3</td>
-          <td>@Model.OrderHistory[orderID].Item4</td>
-          <td>@Model.OrderHistory[orderID].Item5</td>
-          <td>@string.Format("${0:N2}", Model.OrderHistory[orderID].Item6)</td>
-          <td>@Model.OrderHistory[orderID].Item7</td>
-        </tr>
-      } *@
   </table>
   @using (Html.BeginForm("BackToSelection", "Order", FormMethod.Post)) {
     <input type="submit" value="Go Back">
