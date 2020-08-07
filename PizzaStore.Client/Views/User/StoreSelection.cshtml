@@ -15,4 +15,7 @@
     
     <br><br><input type="submit" value="Submit">
   }
+  @using (Html.BeginForm("LogOut", "User", FormMethod.Post)) {
+    <input type="submit" value="Log Out">
+  }
 </main>

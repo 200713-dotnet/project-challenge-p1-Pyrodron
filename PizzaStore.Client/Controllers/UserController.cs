@@ -79,5 +79,10 @@ namespace PizzaStore.Client.Controllers {
 
       return Redirect($"/Store/Visit?ID={foundStore.ID}");
     }
+
+    public IActionResult LogOut() {
+      TempData.Remove("UserID");
+      return Redirect("/");
+    }
   }
 }
