@@ -10,8 +10,8 @@
   @Html.HiddenFor(m => m.ID)
   @Html.HiddenFor(m => m.StoreName)
   @using (Html.BeginForm("ViewReports", "Store", FormMethod.Post)) {
-    <input type="submit" value="Order History" name="history">
-    <input type="submit" value="Sales Reports" name="sales">
+    <input type="submit" value="View Order History" name="history">
+    <input type="submit" value="View Sales Reports" name="sales">
     <input type="submit" value="Log Out" name="logout">
     @Model.ReasonForError
   }

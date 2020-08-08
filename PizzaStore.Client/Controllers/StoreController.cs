@@ -285,8 +285,10 @@ namespace PizzaStore.Client.Controllers {
         model.OrderHistory = new List<OrderViewClass>();
         return View("OrderHistory", model);
       } else if (viewSalesReports) {
-        model.ReasonForError = "Not implemented 2";
-        return View("Store", model);
+        return View("SalesReport", new SalesReportViewModel {
+          StoreName = model.StoreName,
+          Interval = 0
+        });
       } else {
         TempData.Remove("StoreID");
         return Redirect("/");
@@ -365,6 +367,30 @@ namespace PizzaStore.Client.Controllers {
 
       model.ReasonForError = $"{model.OrderHistory.Count()} records found";
       return View("OrderHistory", model);
+    }
+  
+    [HttpPost]
+    public IActionResult SalesReport(SalesReportViewModel model) {
+      _ = storeLoggedIn;
+      model.StoreName = _db.Stores.Where(s => s.ID == storeLoggedIn).SingleOrDefault().Name;
+      
+      bool submitClicked = Request.Form["submit"].ToString() != "";
+      bool backClicked = Request.Form["back"].ToString() != "";
+
+      if (submitClicked && backClicked) {
+        Console.WriteLine("Both buttons in Sales Report registered as clicked");
+        model.ReasonForError = "There was an error processing your request. Please try again.";
+        return View("SalesReport", model);
+      } else if (submitClicked) {
+        model.ReasonForError = "There was an error processing your request. Please try again.";
+        return View("SalesReport", model);
+      } else {  // if backClicked
+        StoreViewModel storeModel = new StoreViewModel {
+          StoreName = model.StoreName,
+          ID = storeLoggedIn
+        };
+        return View("Store", storeModel);
+      }
     }
   }
 }

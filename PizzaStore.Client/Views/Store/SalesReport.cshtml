@@ -1,0 +1,16 @@
+@model PizzaStore.Client.Models.SalesReportViewModel
+@{
+    ViewData["Title"] = $"Sales Report for {Model.StoreName}";
+}
+
+<h2>Sales Report for @Model.StoreName</h2>
+
+<section>
+  @using (Html.BeginForm("SalesReport", "Store", FormMethod.Post)) {
+    @Html.RadioButtonFor(m => m.Interval, 7)<span> Weekly reports&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    @Html.RadioButtonFor(m => m.Interval, 30)<span> Monthly reports</span><br>
+    <input type="submit" value="Submit" name="submit">
+    <input type="submit" value="Go Back" name="back">
+    @Model.ReasonForError
+  }
+</section>
