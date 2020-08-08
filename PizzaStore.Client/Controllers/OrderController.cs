@@ -56,13 +56,13 @@ namespace PizzaStore.Client.Controllers {
           StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
         };
         if (order.PizzaID == 0) {
-          orderView.Pizzas = "Custom";
+          orderView.Pizza = "Custom";
         } else {
           try {
-            orderView.Pizzas = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+            orderView.Pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
           } catch (NullReferenceException) {
             Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
-            orderView.Pizzas = "Error";
+            orderView.Pizza = "Error";
           }
         }
         orderHistory.Add(orderView);

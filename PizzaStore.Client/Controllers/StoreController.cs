@@ -287,7 +287,9 @@ namespace PizzaStore.Client.Controllers {
       } else if (viewSalesReports) {
         return View("SalesReport", new SalesReportViewModel {
           StoreName = model.StoreName,
-          Interval = 0
+          Interval = 0,
+          // SalesReport = new Dictionary<DateTime, List<OrderModel>>()
+          SalesReport = new Dictionary<DateTime, OrderViewModel>()
         });
       } else {
         TempData.Remove("StoreID");
@@ -353,13 +355,13 @@ namespace PizzaStore.Client.Controllers {
           StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
         };
         if (order.PizzaID == 0) {
-          orderView.Pizzas = "Custom";
+          orderView.Pizza = "Custom";
         } else {
           try {
-            orderView.Pizzas = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+            orderView.Pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
           } catch (NullReferenceException) {
             Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
-            orderView.Pizzas = "Error";
+            orderView.Pizza = "Error";
           }
         }
         model.OrderHistory.Add(orderView);
@@ -373,7 +375,7 @@ namespace PizzaStore.Client.Controllers {
     public IActionResult SalesReport(SalesReportViewModel model) {
       _ = storeLoggedIn;
       model.StoreName = _db.Stores.Where(s => s.ID == storeLoggedIn).SingleOrDefault().Name;
-      
+
       bool submitClicked = Request.Form["submit"].ToString() != "";
       bool backClicked = Request.Form["back"].ToString() != "";
 
@@ -382,7 +384,92 @@ namespace PizzaStore.Client.Controllers {
         model.ReasonForError = "There was an error processing your request. Please try again.";
         return View("SalesReport", model);
       } else if (submitClicked) {
-        model.ReasonForError = "There was an error processing your request. Please try again.";
+        List<OrderModel> listOfOrders = _db.Orders.ToList();
+
+        Dictionary<DateTime, OrderViewModel> salesReport = new Dictionary<DateTime, OrderViewModel>();
+        foreach (OrderModel order in listOfOrders) {
+          DateTime dayOfOrder = order.Created.Date;
+          DateTime startingDayOfInterval = dayOfOrder;
+          if (model.Interval == 7) {
+            startingDayOfInterval = dayOfOrder.AddDays(-((int) dayOfOrder.DayOfWeek));
+          } else if (model.Interval == 30) {
+            startingDayOfInterval = dayOfOrder.AddDays(-(dayOfOrder.Day - 1));
+          } else {
+            model.ReasonForError = "Please select an interval";
+            return View("SalesReport", model);
+          }
+
+          StringBuilder toppings = new StringBuilder();
+          foreach (string topping in order.Toppings.Split(',')) {
+            int toppingID;
+            if (!int.TryParse(topping, out toppingID)) {
+              Console.WriteLine($"Database error: Expected integer for pizza ID, received {topping}");
+              toppings.Append("Error, ");
+              continue;
+            }
+            ToppingModel top = _db.Toppings.Where(t => t.ID == toppingID).SingleOrDefault();
+            toppings.Append($"{top.Name}, ");
+          }
+          toppings.Remove(toppings.Length - 2, 2);
+          OrderViewClass orderView = new OrderViewClass{
+            UserID = order.UserID,
+            OrderID = order.OrderID,
+            Created = order.Created,
+            Size = order.Size,
+            Crust = _db.Crust.Where(c => c.ID == order.CrustID).SingleOrDefault().Name,
+            Toppings = toppings.ToString(),
+            Quantity = order.Quantity,
+            Cost = order.TotalCost,
+            StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
+          };
+          if (order.PizzaID == 0) {
+            orderView.Pizza = "Custom";
+          } else {
+            try {
+              orderView.Pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+            } catch (NullReferenceException) {
+              Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
+              orderView.Pizza = "Error";
+            }
+          }
+
+          try {
+            salesReport[startingDayOfInterval].OrderHistory.Add(orderView);
+          } catch (KeyNotFoundException) {
+            salesReport.Add(startingDayOfInterval, new OrderViewModel { OrderHistory = new List<OrderViewClass> { orderView } });
+          }
+        }
+
+        model.SalesReport = new Dictionary<DateTime, OrderViewModel>();
+        foreach (DateTime startDate in salesReport.Keys) {
+          OrderViewModel orderView = salesReport[startDate];
+          model.SalesReport.Add(startDate, new OrderViewModel { OrderHistory = new List<OrderViewClass>() });
+          foreach (OrderViewClass order in orderView.OrderHistory) {
+            string pizza = order.Pizza;
+            List<OrderViewClass> srOrderHistory = model.SalesReport[startDate].OrderHistory;
+            int i;
+            for (i = 0; i < srOrderHistory.Count(); i++) {
+              OrderViewClass srOrder = model.SalesReport[startDate].OrderHistory[i];
+              if (srOrder.Pizza == pizza) {
+                break;
+              }
+            }
+
+            if (i == srOrderHistory.Count()) {
+              srOrderHistory.Add(new OrderViewClass {
+                Pizza = pizza,
+                Quantity = 1,
+                Cost = order.Cost
+              });
+            } else {
+              srOrderHistory[i].Quantity += 1;
+              srOrderHistory[i].Cost += order.Cost;
+            }
+            model.SalesReport[startDate].IntervalQuantity += 1;
+            model.SalesReport[startDate].IntervalSales += order.Cost;
+          }
+        }
+
         return View("SalesReport", model);
       } else {  // if backClicked
         StoreViewModel storeModel = new StoreViewModel {

@@ -7,13 +7,15 @@ namespace PizzaStore.Client.Models {
   public class OrderViewModel {
     public List<OrderViewClass> OrderHistory { get; set; }
     public string ReasonForError { get; set; }
+    public int IntervalQuantity { get; set; }
+    public decimal IntervalSales { get; set; }
   }
 
   public class OrderViewClass {
     public int UserID { get; set; }
     public int OrderID { get; set; }
     public DateTime Created { get; set; }
-    public string Pizzas { get; set; }
+    public string Pizza { get; set; }
     public string Size { get; set; }
     public string Crust { get; set; }
     public string Toppings { get; set; }

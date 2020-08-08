@@ -13,4 +13,33 @@
     <input type="submit" value="Go Back" name="back">
     @Model.ReasonForError
   }
+
+  <table>
+    <tr>
+      <th>Starting Date</th>
+      <th>Pizza</th>
+      <th>Quantity</th>
+      <th>Sales</th>
+    </tr>
+    @foreach (DateTime interval in Model.SalesReport.Keys) {
+      @for (int i = 0; i < Model.SalesReport[interval].OrderHistory.Count(); i++) {
+        <tr>
+          @if (i == 0) {
+            <td>@interval.ToShortDateString()</td>
+          } else {
+            <td></td>
+          }
+          <td>@Model.SalesReport[interval].OrderHistory[i].Pizza</td>
+          <td>@Model.SalesReport[interval].OrderHistory[i].Quantity</td>
+          <td>@string.Format("${0:0.00}", Model.SalesReport[interval].OrderHistory[i].Cost)</td>
+        </tr>
+      }
+      <tr>
+        <td>Total:</td>
+        <td></td>
+        <td>@Model.SalesReport[interval].IntervalQuantity</td>
+        <td>@string.Format("${0:0.00}", @Model.SalesReport[interval].IntervalSales)</td>
+      </tr>
+    }
+  </table>
 </section>
