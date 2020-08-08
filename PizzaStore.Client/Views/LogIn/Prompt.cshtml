@@ -5,13 +5,13 @@
 
 <h2>User Login</h2>
 
-@* <main> *@
-  <section>
-    <p>Please enter your user ID in the box below (must be a positive integer):</p>
-    @using (Html.BeginForm("Auto", "LogIn", FormMethod.Post)) {
-      @Html.TextBoxFor(model => model.IDInput)
-      @Html.ValidationMessageFor(model => model.IDInput)
-      <br><br><input type="submit" value="Submit">
-    }
-  </section>
-@* </main> *@
+<section>
+  @using (Html.BeginForm("Auto", "LogIn", FormMethod.Post)) {
+    <p>Are you a user or a store?</p>
+    @Html.RadioButtonFor(m => m.UserOrStore, 1)<span> User&nbsp;&nbsp;&nbsp;&nbsp;</span>@Html.RadioButtonFor(m => m.UserOrStore, 2)<span> Store</span><br><br>
+    <p>Please enter your ID</p>
+    @Html.TextBoxFor(model => model.IDInput)
+    <br><br><input type="submit" value="Submit">
+    @Model.ReasonForError
+  }
+</section>

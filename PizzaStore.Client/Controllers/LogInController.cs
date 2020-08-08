@@ -15,7 +15,7 @@ namespace PizzaStore.Client.Controllers {
 
     [HttpGet]
     public IActionResult Prompt() {
-      return View();
+      return View(new LogInViewModel());
     }
 
     [HttpGet]
@@ -25,23 +25,34 @@ namespace PizzaStore.Client.Controllers {
 
     [HttpPost]
     public IActionResult Auto(LogInViewModel model) {
-      int parsedInput;
-      if (int.TryParse(model.IDInput, out parsedInput)) {
-        if (parsedInput < 0) {
-          model.ReasonForInvalid = "A negative integer was entered in for the user ID.";
-          return View("InvalidID", model);
-        } else if (parsedInput == 0) {
-          model.ReasonForInvalid = "Zero is not a positive integer.";
-          return View("InvalidID", model);
-        }
-        UserModel matchingUser = null;
-        foreach (UserModel user in _db.Users) {
-          if (user.ID == parsedInput) {
-            matchingUser = user;
-            break;
-          }
-        }
+      int parsedID;
+      if (!int.TryParse(model.IDInput, out parsedID)) {
+        model.ReasonForError = "Invalid ID was given. You must type in a positive integer for an ID. Decimals or text are not allowed.";
+        return View("Prompt", model);
+      } else if (parsedID < 0) {
+        model.ReasonForError = "A negative integer was entered in for the ID. Please enter a positive integer for an ID.";
+        return View("Prompt", model);
+      } else if (parsedID == 0) {
+        model.ReasonForError = "Zero was entered in for the ID which is not positive. Please enter a positive integer for an ID.";
+        return View("Prompt", model);
+      }
+
+      if (model.UserOrStore <= 0) {
+        model.ReasonForError = "Please select whether you are a user or a store";
+        return View("Prompt", model);
+      } else if (model.UserOrStore > 2) {
+        Console.WriteLine($"Invalid option for store/user selection; expected 0 or 1, got {model.UserOrStore}");
+        model.ReasonForError = "There was an error processing your request. Please try again.";
+        return View("Prompt", model);
+      }
+      
+      TempData["IsUser"] = model.UserOrStore == 1;
+      TempData.Keep("IsUser");
+      
+      if (model.UserOrStore == 1) {
+        UserModel matchingUser = _db.Users.Where(u => u.ID == parsedID).SingleOrDefault();
         if (matchingUser == null) {
+          model.IsUser = true;
           return View("DoesNotExist", model);
         }
 
@@ -51,9 +62,45 @@ namespace PizzaStore.Client.Controllers {
         TempData["UserID"] = matchingUser.ID;
         
         return Redirect("/User/StoreSelection");
+      } else {  // if model.StoreOrUser == 2; check moved here to remove 'not all code paths return a value' error
+        StoreModel matchingStore = _db.Stores.Where(s => s.ID == parsedID).SingleOrDefault();
+        if (matchingStore == null) {
+          model.ReasonForError = "A store with this ID does not exist";
+          return View("Prompt", model);
+        }
+        
+        TempData["StoreID"] = matchingStore.ID;
+        TempData["StoreName"] = matchingStore.Name;
+        return Redirect("/Store/Store");
+      }
+    }
+  
+    public IActionResult CreateNew(LogInViewModel model) {
+      model.IsUser = (bool) TempData["IsUser"];
+
+      if (model.IsUser) {
+        try {
+          _db.Users.Add(new UserModel{
+            Name = model.NewName
+          });
+          _db.SaveChanges();
+
+          UserViewModel userViewModel = new UserViewModel();
+          userViewModel.Name = model.NewName;
+          userViewModel.ID = _db.Users.Max(u => u.ID);
+
+          return View("NewAdded", userViewModel);
+        } catch (Exception e) {
+          TempData.Keep("IsUser");
+          Console.WriteLine($"{e.Message}\n{e.StackTrace}");
+          model.ReasonForError = "There was an error processing your request. Please try again.";
+          return View("DoesNotExist", model);
+        }
       } else {
-        model.ReasonForInvalid = "Invalid input was given. Either text or a decimal number was entered in.";
-        return View("InvalidID", model);
+        TempData.Keep("IsUser");
+        Console.WriteLine("Someone is attempting to create a store");
+        model.ReasonForError = "There was an error processing your request. Please try again later.";
+        return View("DoesNotExist", model);
       }
     }
   }

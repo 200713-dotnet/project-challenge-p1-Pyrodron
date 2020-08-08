@@ -81,7 +81,7 @@ as a user, i should be able to do this:
 
 ## store story
 
-as a store, i should be able do this:
+as a store, I should be able do this:
 
 + access the application
 + select options for order history, sales

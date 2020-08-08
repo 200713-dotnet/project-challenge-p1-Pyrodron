@@ -249,5 +249,14 @@ namespace PizzaStore.Client.Controllers {
     public IActionResult BackToStoreSelection() {
       return Redirect("/User/StoreSelection");
     }
+
+    [HttpGet]
+    public IActionResult Store() {
+      StoreViewModel model = new StoreViewModel();
+      model.ID = (int) TempData["StoreID"];
+      model.StoreName = (string) TempData["StoreName"];
+
+      return View(model);
+    }
   }
 }

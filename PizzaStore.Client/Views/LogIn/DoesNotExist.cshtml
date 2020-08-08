@@ -1,18 +1,18 @@
 @model PizzaStore.Client.Models.LogInViewModel
 @{
-    ViewData["Title"] = "User Not Found";
+    ViewData["Title"] = "Store Not Found";
 }
 
-<h2>User Not Found</h2>
+<h2>@(Model.IsUser ? "User" : "Store") Not Found</h2>
 
-@* <main> *@
-  <section>
-    <p>A user with an ID of @Model.IDInput was not found. If you would like to create a new user, please enter your name below.</p>
-    @using (Html.BeginForm("AddUser", "User", FormMethod.Post)) {
+<section>
+  <p>A @(@Model.IsUser ? "user" : "store") with an ID of @Model.IDInput was not found. @(Model.IsUser ? "If you would like to create a new user, please enter your name below." : "")</p>
+  @if (Model.IsUser) {
+    @using (Html.BeginForm("CreateNew", "LogIn", FormMethod.Post)) {
       <span>Name:</span><br>
       @Html.TextBoxFor(model => model.NewName)
-      @Html.ValidationMessageFor(model => model.NewName)
       <br><br><input type="submit" value="Submit">
+      @Model.ReasonForError
     }
-  </section>
-@* </main> *@
+  }
+</section>

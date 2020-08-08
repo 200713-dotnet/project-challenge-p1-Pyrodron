@@ -4,6 +4,7 @@ using PizzaStore.Domain.Models;
 
 namespace PizzaStore.Client.Models {
   public class StoreViewModel {
+    public int ID { get; set; }
     public string StoreName { get; set; }
     public int OptionSelected { get; set; }
     public List<CheckModel> Menu { get; set; }

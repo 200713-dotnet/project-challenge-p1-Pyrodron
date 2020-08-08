@@ -20,27 +20,6 @@ namespace PizzaStore.Client.Controllers {
       _db = context;
     }
     
-    [HttpPost]
-    public IActionResult AddUser(LogInViewModel model) {
-      try {
-        _db.Users.Add(new UserModel{
-          Name = model.NewName
-        });
-        _db.SaveChanges();
-
-        UserViewModel userViewModel = new UserViewModel();
-        userViewModel.Name = model.NewName;
-        userViewModel.ID = _db.Users.Max(u => u.ID);
-
-        return View("NewUserAdded", userViewModel);
-      } catch (Exception e) {
-        Console.WriteLine($"{e.Message}\n{e.StackTrace}");
-        UserViewModel thisModel = new UserViewModel();
-        thisModel.ReasonForError = "An unknown error occured while adding a new user to the system. Please visit the main page and try again.";
-        return View("Error", thisModel);
-      }
-    }
-
     public IActionResult StoreSelection() {
       UserViewModel model = new UserViewModel();
       model.Name = _db.Users.Where(u => u.ID == userLoggedIn).SingleOrDefault().Name;
