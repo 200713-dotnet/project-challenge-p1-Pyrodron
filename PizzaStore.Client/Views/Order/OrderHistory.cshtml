@@ -37,19 +37,6 @@
         <td>@Model.OrderHistory[i].Cost</td>
       </tr>
     }
-      @* @foreach (OrderViewClass order in Model.OrderHistory) {
-        <tr>
-          <td>@order.OrderID</td>
-          <td>@order.Created</td>
-          <td>@order.Size</td>
-          <td>@order.Pizzas</td>
-          <td>@order.Crust</td>
-          <td>@order.Toppings</td>
-          <td>@order.Quantity</td>
-          <td>@order.Cost</td>
-          <td>@order.StoreName</td>
-        </tr>
-      } *@
   </table>
   @using (Html.BeginForm("BackToSelection", "Order", FormMethod.Post)) {
     <input type="submit" value="Go Back">

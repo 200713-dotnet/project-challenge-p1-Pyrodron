@@ -11,14 +11,14 @@
     @using (Html.BeginForm("SubmitOrder", "Store", FormMethod.Post)) {
       <table style="width: 100%">
         <tr>
-          <td>Select</td>
-          <td>Name</td>
-          <td>Size</td>
-          <td>Cost</td>
-          <td>Crust</td>
-          <td>Quantity</td>
+          <th>Select</th>
+          <th>Name</th>
+          <th>Size</th>
+          <th>Cost</th>
+          <th>Crust</th>
+          <th>Quantity</th>
           @foreach (ToppingViewModel topping in Model.Menu[0].SelectedToppings) { // all pizzas will have the same toppings available to select from
-            <td>@topping.Name</td>
+            <th>@topping.Name</th>
           }
         </tr>
         @for (int i = 0; i < Model.Menu.Count(); i++) {
@@ -38,7 +38,7 @@
                 @Html.HiddenFor(m => m.Menu[i].SelectedCrust)
               }
             </td>
-            <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0" }})</td>
+            <td>@Html.EditorFor(m => m.Menu[i].Quantity, new { htmlAttributes = new { @type = "number", @min = "0", @step = "1", value = "0", style="width: 50px" }})</td>
             @for (int j = 0; j < Model.Menu[i].SelectedToppings.Length; j++) {
               @if (Model.Menu[i].ID == 0) {
                 <td>@Html.CheckBoxFor(m => m.Menu[i].SelectedToppings[j].IsSelected)</td>

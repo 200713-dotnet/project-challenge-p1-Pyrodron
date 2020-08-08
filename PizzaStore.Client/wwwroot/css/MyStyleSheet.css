@@ -1,0 +1,9 @@
+#body.bodyContainer {
+  margin-left: 10%; /* Shows as yellow in Firefox */
+  margin-right: 10%;
+  padding: 0px 10px; /* Shows as purple in Firefox */
+}
+
+#navbar {
+  margin: 0 9%;
+}

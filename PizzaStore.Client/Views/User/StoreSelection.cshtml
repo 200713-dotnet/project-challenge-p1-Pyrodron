@@ -5,7 +5,7 @@
 
 <h2>Hello @Model.Name!</h2>
 
-<main>
+@* <main> *@
   <span>What would you like to do today? Select a store to visit it, or select an action to perform.</span><br>
   @using (Html.BeginForm("OptionSelected", "User", FormMethod.Post)) {
     @foreach (PizzaStore.Domain.Models.StoreModel store in Model.Stores) {
@@ -17,4 +17,4 @@
     <input type="submit" value="Log Out" name="LogOut">
     <br><br>@Model.ReasonForError
   }
-</main>
+@* </main> *@
