@@ -10,6 +10,7 @@ namespace PizzaStore.Client.Models {
   }
 
   public class OrderViewClass {
+    public int UserID { get; set; }
     public int OrderID { get; set; }
     public DateTime Created { get; set; }
     public string Pizzas { get; set; }

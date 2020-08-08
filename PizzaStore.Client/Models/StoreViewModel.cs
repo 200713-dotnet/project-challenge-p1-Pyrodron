@@ -11,6 +11,8 @@ namespace PizzaStore.Client.Models {
     public string ReasonForError { get; set; }
     public List<SelectListItem> Crusts { get; set; }
     public List<ToppingModel> Toppings { get; set; }
+    public string FilterHistoryToUser { get; set; }
+    public List<OrderViewClass> OrderHistory { get; set; }
   }
 
   public class CheckModel {

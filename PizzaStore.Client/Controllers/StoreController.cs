@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,6 +20,13 @@ namespace PizzaStore.Client.Controllers {
       }
     }
     
+    private int storeLoggedIn {
+      get {
+        TempData.Keep("StoreID");
+        return (int) TempData["StoreID"];
+      }
+    }
+
     public StoreController(PizzaStoreDbContext context) { // dependency injection handled by dotnet will pass the active DbContext instance here
       _db = context;
     }
@@ -253,10 +261,110 @@ namespace PizzaStore.Client.Controllers {
     [HttpGet]
     public IActionResult Store() {
       StoreViewModel model = new StoreViewModel();
-      model.ID = (int) TempData["StoreID"];
-      model.StoreName = (string) TempData["StoreName"];
+      model.ID = storeLoggedIn;
+      model.StoreName = _db.Stores.Where(s => s.ID == model.ID).SingleOrDefault().Name;
 
       return View(model);
+    }
+
+    [HttpPost]
+    public IActionResult ViewReports(StoreViewModel model) {
+      model.ID = storeLoggedIn;
+      model.StoreName = _db.Stores.Where(s => s.ID == model.ID).SingleOrDefault().Name;
+
+      bool viewOrderHistory = Request.Form["history"].ToString() != "";
+      bool viewSalesReports = Request.Form["sales"].ToString() != "";
+      bool logOutClicked = Request.Form["logout"].ToString() != "";
+      int buttonsClicked = (viewOrderHistory ? 1 : 0) + (viewSalesReports ? 1 : 0) + (logOutClicked ? 1 : 0);
+
+      if (buttonsClicked > 1) {
+        Console.WriteLine("Multiple buttons in the store manager registered as clicked");
+        model.ReasonForError = "There was an error processing your request. Please try again.";
+        return View("Store", model);
+      } else if (viewOrderHistory) {
+        model.OrderHistory = new List<OrderViewClass>();
+        return View("OrderHistory", model);
+      } else if (viewSalesReports) {
+        model.ReasonForError = "Not implemented 2";
+        return View("Store", model);
+      } else {
+        TempData.Remove("StoreID");
+        return Redirect("/");
+      }
+    }
+
+    [HttpPost]
+    public IActionResult OrderHistory(StoreViewModel model) {
+      model.ID = storeLoggedIn;
+      model.StoreName = _db.Stores.Where(s => s.ID == model.ID).SingleOrDefault().Name;
+      model.OrderHistory = new List<OrderViewClass>();
+
+      bool submitClicked = Request.Form["submit"].ToString() != "";
+      bool backClicked = Request.Form["back"].ToString() != "";
+
+      if (submitClicked && backClicked) {
+        model.ReasonForError = "There was a problem processing your request. Please try again.";
+        return View("OrderHistory", model);
+      } else if (backClicked) {
+        return Redirect("/Store/Store");
+      }
+
+      if (model.OptionSelected != 1 && model.OptionSelected != 2) {
+        model.ReasonForError = "There was an error processing your request. Please try again.";
+        return View("OrderHistory", model);
+      }
+
+      List<OrderModel> orders;
+      if (model.OptionSelected == 1) {
+        orders = _db.Orders.Where(o => o.StoreID == model.ID).ToList();
+      } else {  // if model.OptionSelected == 2
+        int parsedUserID;
+        if (!int.TryParse(model.FilterHistoryToUser, out parsedUserID)) {
+          model.ReasonForError = "Please enter a positive integer for a user ID";
+          return View("OrderHistory", model);
+        }
+        orders = _db.Orders.Where(o => o.StoreID == model.ID).Where(o => o.UserID == parsedUserID).ToList();
+      }
+
+      foreach (OrderModel order in orders) {
+        StringBuilder toppings = new StringBuilder();
+        foreach (string topping in order.Toppings.Split(',')) {
+          int toppingID;
+          if (!int.TryParse(topping, out toppingID)) {
+            Console.WriteLine($"Database error: Expected integer for pizza ID, received {topping}");
+            toppings.Append("Error, ");
+            continue;
+          }
+          ToppingModel top = _db.Toppings.Where(t => t.ID == toppingID).SingleOrDefault();
+          toppings.Append($"{top.Name}, ");
+        }
+        toppings.Remove(toppings.Length - 2, 2);
+        OrderViewClass orderView = new OrderViewClass{
+          UserID = order.UserID,
+          OrderID = order.OrderID,
+          Created = order.Created,
+          Size = order.Size,
+          Crust = _db.Crust.Where(c => c.ID == order.CrustID).SingleOrDefault().Name,
+          Toppings = toppings.ToString(),
+          Quantity = order.Quantity,
+          Cost = order.TotalCost,
+          StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
+        };
+        if (order.PizzaID == 0) {
+          orderView.Pizzas = "Custom";
+        } else {
+          try {
+            orderView.Pizzas = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+          } catch (NullReferenceException) {
+            Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
+            orderView.Pizzas = "Error";
+          }
+        }
+        model.OrderHistory.Add(orderView);
+      }
+
+      model.ReasonForError = $"{model.OrderHistory.Count()} records found";
+      return View("OrderHistory", model);
     }
   }
 }

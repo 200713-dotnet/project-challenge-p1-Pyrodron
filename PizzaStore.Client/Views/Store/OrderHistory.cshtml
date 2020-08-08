@@ -1,0 +1,43 @@
+@model PizzaStore.Client.Models.StoreViewModel
+@{
+    ViewData["Title"] = $"Order History for {Model.StoreName}";
+}
+
+<h2>Order History for @Model.StoreName</h2>
+
+<section>
+  @using (Html.BeginForm("OrderHistory", "Store", FormMethod.Post)) {
+    @Html.RadioButtonFor(m => m.OptionSelected, 1)<span> Show order history from all users</span><br>
+    @Html.RadioButtonFor(m => m.OptionSelected, 2)<span> Filter order history to this user: </span>@Html.TextBoxFor(m => m.FilterHistoryToUser)<br>
+    <input type="submit" value="Submit" name="submit">
+    <input type="submit" value="Go Back" name="back">
+    @Model.ReasonForError
+  }
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Created</th>
+      <th>Quantity</th>
+      <th>Size</th>
+      <th>Pizzas in order</th>
+      <th>Crust</th>
+      <th>Toppings</th>
+      <th>Order Cost</th>
+      <th>Ordered By User ID</th>
+    </tr>
+    @foreach (OrderViewClass order in Model.OrderHistory) {
+      <tr>
+        <td>@order.OrderID</td>
+        <td>@order.Created</td>
+        <td>@order.Quantity</td>
+        <td>@order.Size</td>
+        <td>@order.Pizzas</td>
+        <td>@order.Crust</td>
+        <td>@order.Toppings</td>
+        <td>@string.Format("${0:0.00}", order.Cost)</td>
+        <td>@order.UserID</td>
+      </tr>
+    }
+  </table>
+</section>

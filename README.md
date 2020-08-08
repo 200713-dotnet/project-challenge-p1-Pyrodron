@@ -83,7 +83,7 @@ as a user, i should be able to do this:
 
 as a store, I should be able do this:
 
-+ access the application
++ access the application ✔️
 + select options for order history, sales
 + if order history
 + select options for all store orders and orders associated to a user (filtering)
