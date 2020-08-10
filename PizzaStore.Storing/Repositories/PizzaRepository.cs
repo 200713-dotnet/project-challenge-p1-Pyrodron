@@ -36,6 +36,22 @@ namespace PizzaStore.Storing.Repositories {
         return -1;
       }
     }
+
+    public List<OrderModel> GetOrdersFromUser(int ID) {
+      return _db.Orders.Where(o => o.UserID == ID).ToList();
+    }
+
+    public ToppingModel GetTopping(int ID) {
+      return _db.Toppings.Where(t => t.ID == ID).SingleOrDefault();
+    }
+
+    public CrustModel GetCrust(int ID) {
+      return _db.Crust.Where(c => c.ID == ID).SingleOrDefault();
+    }
+
+    public PizzaModel GetPizza(int ID) {
+      return _db.Pizzas.Where(p => p.ID == ID).SingleOrDefault();
+    }
   }
 }
 

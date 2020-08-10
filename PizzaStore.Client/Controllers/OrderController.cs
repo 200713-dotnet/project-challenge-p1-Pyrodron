@@ -6,18 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using PizzaStore.Client.Models;
 using PizzaStore.Domain.Models;
 using PizzaStore.Storing;
+using PizzaStore.Storing.Repositories;
 
 namespace PizzaStore.Client.Controllers {
   public class OrderController : Controller {
-    private readonly PizzaStoreDbContext _db;
+    // private readonly PizzaStoreDbContext _db;
+    private readonly PizzaRepository _repo;
     private int userLoggedIn {
       get {
         TempData.Keep("UserID");
         return (int) TempData["UserID"];
       }
     }
-    public OrderController(PizzaStoreDbContext context) { // dependency injection handled by dotnet will pass the active DbContext instance here
-      _db = context;
+    public OrderController(PizzaRepository pizzaRepo) { // dependency injection handled by dotnet will pass the active DbContext instance here
+      _repo = pizzaRepo;
     }
 
     [HttpGet]
@@ -25,7 +27,7 @@ namespace PizzaStore.Client.Controllers {
       List<OrderModel> orders;
       try {
         _ = userLoggedIn; // exception not caught if you just use uLI
-        orders = _db.Orders.Where(o => o.UserID == userLoggedIn).ToList();
+        orders = _repo.GetOrdersFromUser(userLoggedIn);
       } catch (NullReferenceException) {
         model.ReasonForError = "You are not logged in. Please return to the main page to login and try again.";
         return View("Error", model);
@@ -41,7 +43,7 @@ namespace PizzaStore.Client.Controllers {
             toppings.Append("Error, ");
             continue;
           }
-          ToppingModel top = _db.Toppings.Where(t => t.ID == toppingID).SingleOrDefault();
+          ToppingModel top = _repo.GetTopping(toppingID);
           toppings.Append($"{top.Name}, ");
         }
         toppings.Remove(toppings.Length - 2, 2);
@@ -49,17 +51,17 @@ namespace PizzaStore.Client.Controllers {
           OrderID = order.OrderID,
           Created = order.Created,
           Size = order.Size,
-          Crust = _db.Crust.Where(c => c.ID == order.CrustID).SingleOrDefault().Name,
+          Crust = _repo.GetCrust(order.CrustID).Name,
           Toppings = toppings.ToString(),
           Quantity = order.Quantity,
           Cost = order.TotalCost,
-          StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
+          StoreName = _repo.GetStore(order.StoreID).Name
         };
         if (order.PizzaID == 0) {
           orderView.Pizza = "Custom";
         } else {
           try {
-            orderView.Pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+            orderView.Pizza = _repo.GetPizza(order.PizzaID).Name;
           } catch (NullReferenceException) {
             Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
             orderView.Pizza = "Error";
@@ -74,8 +76,8 @@ namespace PizzaStore.Client.Controllers {
     [HttpPost]
     public IActionResult BackToSelection() {
       UserViewModel userViewModel = new UserViewModel();
-      userViewModel.Name = _db.Users.Where(u => u.ID == userLoggedIn).SingleOrDefault().Name;
-      userViewModel.Stores = _db.Stores.ToList();
+      userViewModel.Name = _repo.GetUser(userLoggedIn).Name;
+      userViewModel.Stores = _repo.GetStores();
 
       return View("../User/StoreSelection", userViewModel);
     }
