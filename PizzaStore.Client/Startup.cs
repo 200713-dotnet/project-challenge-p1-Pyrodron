@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PizzaStore.Storing;
+using PizzaStore.Storing.Repositories;
 
 namespace PizzaStore.Client
 {
@@ -29,6 +30,7 @@ namespace PizzaStore.Client
             services.AddDbContext<PizzaStoreDbContext>(options => {
               options.UseSqlServer(Configuration.GetConnectionString("mssql"));
             });
+            services.AddScoped<PizzaRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

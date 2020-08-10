@@ -4,13 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 using PizzaStore.Client.Models;
 using PizzaStore.Domain.Models;
 using PizzaStore.Storing;
+using PizzaStore.Storing.Repositories;
 
 namespace PizzaStore.Client.Controllers {
   public class LogInController : Controller {
-    private readonly PizzaStoreDbContext _db;
+    // private readonly PizzaStoreDbContext _db;
+    private readonly PizzaRepository _repo;
 
-    public LogInController(PizzaStoreDbContext context) { // dependency injection handled by dotnet will pass the active DbContext instance here
-      _db = context;
+    public LogInController(PizzaRepository pizzaRepo) { // dependency injection handled by dotnet will pass the active DbContext instance here
+      // _db = context;
+      _repo = pizzaRepo;
     }
 
     [HttpGet]
@@ -50,7 +53,7 @@ namespace PizzaStore.Client.Controllers {
       TempData.Keep("IsUser");
       
       if (model.UserOrStore == 1) {
-        UserModel matchingUser = _db.Users.Where(u => u.ID == parsedID).SingleOrDefault();
+        UserModel matchingUser = _repo.GetUser(parsedID);
         if (matchingUser == null) {
           model.IsUser = true;
           return View("DoesNotExist", model);
@@ -58,12 +61,12 @@ namespace PizzaStore.Client.Controllers {
 
         UserViewModel userViewModel = new UserViewModel();
         userViewModel.Name = matchingUser.Name;
-        userViewModel.Stores = _db.Stores.ToList();
+        userViewModel.Stores = _repo.GetStores();
         TempData["UserID"] = matchingUser.ID;
         
         return Redirect("/User/StoreSelection");
       } else {  // if model.StoreOrUser == 2; check moved here to remove 'not all code paths return a value' error
-        StoreModel matchingStore = _db.Stores.Where(s => s.ID == parsedID).SingleOrDefault();
+        StoreModel matchingStore = _repo.GetStore(parsedID);
         if (matchingStore == null) {
           model.ReasonForError = "A store with this ID does not exist";
           return View("Prompt", model);
@@ -79,23 +82,18 @@ namespace PizzaStore.Client.Controllers {
       model.IsUser = (bool) TempData["IsUser"];
 
       if (model.IsUser) {
-        try {
-          _db.Users.Add(new UserModel{
-            Name = model.NewName
-          });
-          _db.SaveChanges();
-
-          UserViewModel userViewModel = new UserViewModel();
-          userViewModel.Name = model.NewName;
-          userViewModel.ID = _db.Users.Max(u => u.ID);
-
-          return View("NewAdded", userViewModel);
-        } catch (Exception e) {
+        int newUserID = _repo.AddUser(model.NewName);
+        if (newUserID == -1) {
           TempData.Keep("IsUser");
-          Console.WriteLine($"{e.Message}\n{e.StackTrace}");
           model.ReasonForError = "There was an error processing your request. Please try again.";
           return View("DoesNotExist", model);
         }
+
+        UserViewModel userViewModel = new UserViewModel();
+        userViewModel.Name = model.NewName;
+        userViewModel.ID = newUserID;
+
+        return View("NewAdded", userViewModel);
       } else {
         TempData.Keep("IsUser");
         Console.WriteLine("Someone is attempting to create a store");
