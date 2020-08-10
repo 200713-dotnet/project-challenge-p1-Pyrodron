@@ -25,4 +25,6 @@ touch PizzaStore.Storing/PizzaStoreDbContext.cs
 ~/.dotnet/tools/dotnet-ef database update -s PizzaStore.Client/PizzaStore.Client.csproj -p PizzaStore.Storing/PizzaStore.Storing.csproj
 dotnet watch -p PizzaStore.Client/PizzaStore.Client.csproj run
 
-GET STORE FLOW WORKING
+dotnet add PizzaStore.Testing/PizzaStore.Testing.csproj package Microsoft.EntityFrameworkCore.SQLite
+dotnet add PizzaStore.Testing/PizzaStore.Testing.csproj reference PizzaStore.Storing/PizzaStore.Storing.csproj
+dotnet test PizzaStore.Testing/PizzaStore.Testing.csproj

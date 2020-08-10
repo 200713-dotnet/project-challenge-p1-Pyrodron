@@ -12,7 +12,7 @@ namespace PizzaStore.Storing {
     public DbSet<UserModel> Users { get; set; }
     
     public PizzaStoreDbContext(DbContextOptions options) : base(options) {
-
+      
     }
 
     protected override void OnModelCreating(ModelBuilder builder) {

@@ -23,7 +23,7 @@ The project should support objects of User, Store, Order, Pizza.
 
 + [required] there should exist at least 2 stores for a user to choose from ✔️
 + [required] each store should be able to view/list any and all of their completed/placed orders ✔️
-+ [required] each store should be able to view/list any and all of their sales (amount of revenue weekly or monthly)
++ [required] each store should be able to view/list any and all of their sales (amount of revenue weekly or monthly) ✔️
 
 ### order
 
@@ -87,7 +87,7 @@ as a store, I should be able do this:
 + select options for order history, sales ✔️
 + if order history ✔️
 + select options for all store orders and orders associated to a user (filtering) ✔️
-+ if sales
-+ see pizza type, count, revenue by week or by month
++ if sales ✔️
++ see pizza type, count, revenue by week or by month ✔️
 
 > the goal is to try to complete as many reqs as you can in the time alloted. :)
