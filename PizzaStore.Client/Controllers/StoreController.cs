@@ -335,7 +335,7 @@ namespace PizzaStore.Client.Controllers {
             toppings.Append("Error, ");
             continue;
           }
-          ToppingModel top = _db.Toppings.Where(t => t.ID == toppingID).SingleOrDefault();
+          ToppingModel top = _repo.GetTopping(toppingID);
           toppings.Append($"{top.Name}, ");
         }
         toppings.Remove(toppings.Length - 2, 2);
@@ -344,17 +344,17 @@ namespace PizzaStore.Client.Controllers {
           OrderID = order.OrderID,
           Created = order.Created,
           Size = order.Size,
-          Crust = _db.Crust.Where(c => c.ID == order.CrustID).SingleOrDefault().Name,
+          Crust = _repo.GetCrust(order.CrustID).Name,
           Toppings = toppings.ToString(),
           Quantity = order.Quantity,
           Cost = order.TotalCost,
-          StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
+          StoreName = _repo.GetStore(order.StoreID).Name
         };
         if (order.PizzaID == 0) {
           orderView.Pizza = "Custom";
         } else {
           try {
-            orderView.Pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+            orderView.Pizza = _repo.GetPizza(order.PizzaID).Name;
           } catch (NullReferenceException) {
             Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
             orderView.Pizza = "Error";
@@ -370,7 +370,7 @@ namespace PizzaStore.Client.Controllers {
     [HttpPost]
     public IActionResult SalesReport(SalesReportViewModel model) {
       _ = storeLoggedIn;
-      model.StoreName = _db.Stores.Where(s => s.ID == storeLoggedIn).SingleOrDefault().Name;
+      model.StoreName = _repo.GetStore(storeLoggedIn).Name;
 
       bool submitClicked = Request.Form["submit"].ToString() != "";
       bool backClicked = Request.Form["back"].ToString() != "";
@@ -380,7 +380,7 @@ namespace PizzaStore.Client.Controllers {
         model.ReasonForError = "There was an error processing your request. Please try again.";
         return View("SalesReport", model);
       } else if (submitClicked) {
-        List<OrderModel> listOfOrders = _db.Orders.ToList();
+        List<OrderModel> listOfOrders = _repo.GetOrders();
 
         Dictionary<DateTime, OrderViewModel> salesReport = new Dictionary<DateTime, OrderViewModel>();
         foreach (OrderModel order in listOfOrders) {
@@ -403,7 +403,7 @@ namespace PizzaStore.Client.Controllers {
               toppings.Append("Error, ");
               continue;
             }
-            ToppingModel top = _db.Toppings.Where(t => t.ID == toppingID).SingleOrDefault();
+            ToppingModel top = _repo.GetTopping(toppingID);
             toppings.Append($"{top.Name}, ");
           }
           toppings.Remove(toppings.Length - 2, 2);
@@ -412,17 +412,17 @@ namespace PizzaStore.Client.Controllers {
             OrderID = order.OrderID,
             Created = order.Created,
             Size = order.Size,
-            Crust = _db.Crust.Where(c => c.ID == order.CrustID).SingleOrDefault().Name,
+            Crust = _repo.GetCrust(order.CrustID).Name,
             Toppings = toppings.ToString(),
             Quantity = order.Quantity,
             Cost = order.TotalCost,
-            StoreName = _db.Stores.Where(s => s.ID == order.StoreID).SingleOrDefault().Name
+            StoreName = _repo.GetStore(order.StoreID).Name
           };
           if (order.PizzaID == 0) {
             orderView.Pizza = "Custom";
           } else {
             try {
-              orderView.Pizza = _db.Pizzas.Where(p => p.ID == order.PizzaID).SingleOrDefault().Name;
+              orderView.Pizza = _repo.GetPizza(order.PizzaID).Name;
             } catch (NullReferenceException) {
               Console.WriteLine($"Database error: Could not find a pizza with ID {order.PizzaID} in the Pizza table");
               orderView.Pizza = "Error";

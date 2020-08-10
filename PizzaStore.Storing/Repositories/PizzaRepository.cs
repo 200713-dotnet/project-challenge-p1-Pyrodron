@@ -95,6 +95,10 @@ namespace PizzaStore.Storing.Repositories {
     public List<OrderModel> GetOrdersForStoreAndUser(int storeID, int userID) {
       return _db.Orders.Where(o => o.StoreID == storeID).Where(o => o.UserID == userID).ToList();
     }
+
+    public List<OrderModel> GetOrders() {
+      return _db.Orders.ToList();
+    }
   }
 }
 
