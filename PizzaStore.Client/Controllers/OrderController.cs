@@ -27,7 +27,7 @@ namespace PizzaStore.Client.Controllers {
       List<OrderModel> orders;
       try {
         _ = userLoggedIn; // exception not caught if you just use uLI
-        orders = _repo.GetOrdersFromUser(userLoggedIn);
+        orders = _repo.GetOrdersForUser(userLoggedIn);
       } catch (NullReferenceException) {
         model.ReasonForError = "You are not logged in. Please return to the main page to login and try again.";
         return View("Error", model);

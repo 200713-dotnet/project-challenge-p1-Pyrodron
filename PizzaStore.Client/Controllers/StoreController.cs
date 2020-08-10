@@ -9,10 +9,11 @@ using Microsoft.Data.SqlClient;
 using PizzaStore.Client.Models;
 using PizzaStore.Domain.Models;
 using PizzaStore.Storing;
+using PizzaStore.Storing.Repositories;
 
 namespace PizzaStore.Client.Controllers {
   public class StoreController : Controller {
-    private readonly PizzaStoreDbContext _db;
+    private readonly PizzaRepository _repo;
     private int userLoggedIn {
       get {
         TempData.Keep("UserID");
@@ -27,15 +28,15 @@ namespace PizzaStore.Client.Controllers {
       }
     }
 
-    public StoreController(PizzaStoreDbContext context) { // dependency injection handled by dotnet will pass the active DbContext instance here
-      _db = context;
+    public StoreController(PizzaRepository repo) { // dependency injection handled by dotnet will pass the active DbContext instance here
+      _repo = repo;
     }
     
     [HttpGet]
     public IActionResult Visit(int ID) {
       StoreModel store;
       try {
-        store = _db.Stores.Where(s => s.ID == ID).SingleOrDefault();
+        store = _repo.GetStore(ID);
       } catch (SqlException e) {
         if (e.Message.Contains("server was not found")) {
           Console.WriteLine("Could not connect to the SQL database");
@@ -51,12 +52,12 @@ namespace PizzaStore.Client.Controllers {
         return View("Error", thisModel);
       }
 
-      List<MenuModel> items = _db.Menu.Where(m => m.StoreID == ID).ToList();
+      List<MenuModel> items = _repo.GetMenu(ID);
       List<PizzaModel> pizzas = new List<PizzaModel>();
       List<CheckModel> pizzasToSelectFrom = new List<CheckModel>();
-      List<ToppingModel> toppings = _db.Toppings.ToList();
+      List<ToppingModel> toppings = _repo.GetToppings();
       foreach (MenuModel item in items) {
-        PizzaModel pizza = _db.Pizzas.Where(p => p.ID == item.PizzaID).SingleOrDefault();
+        PizzaModel pizza = _repo.GetPizza(item.PizzaID);
         if (pizza == null) {
           Console.WriteLine($"Unknown pizza found with ID {item.PizzaID} from store {item.StoreID} at menu ID {item.ID}");
           continue;
@@ -72,7 +73,7 @@ namespace PizzaStore.Client.Controllers {
         }
         
         pizzas.Add(pizza);
-        CrustModel crust = _db.Crust.Where(c => c.ID == pizza.DefaultCrustID).SingleOrDefault();
+        CrustModel crust = _repo.GetCrust(pizza.DefaultCrustID);
         ToppingViewModel[] toppingsSelected = new ToppingViewModel[toppings.Count()];
         for (int i = 0; i < toppingsSelected.Length; i++) {
           ToppingModel topping = toppings[i];
@@ -82,7 +83,7 @@ namespace PizzaStore.Client.Controllers {
       }
 
       List<SelectListItem> crustDropDownOptions = new List<SelectListItem>();
-      foreach (CrustModel crust in _db.Crust.ToList()) {
+      foreach (CrustModel crust in _repo.GetCrusts()) {
         crustDropDownOptions.Add(new SelectListItem{
           Text = crust.Name, Value = crust.ID.ToString()
         });
@@ -117,11 +118,11 @@ namespace PizzaStore.Client.Controllers {
         return View("Visit", model);
       }
 
-      StoreModel store = _db.Stores.Where(s => s.ID == storeID).SingleOrDefault();
+      StoreModel store = _repo.GetStore(storeID);
       model.StoreName = store.Name;
       // reference needs to be re-established if an error occurs submitting the order
       List<SelectListItem> c = new List<SelectListItem>();
-      foreach (CrustModel crust in _db.Crust.ToList()) {
+      foreach (CrustModel crust in _repo.GetCrusts()) {
         c.Add(new SelectListItem{
           Text = crust.Name, Value = crust.ID.ToString()
         });
@@ -141,15 +142,9 @@ namespace PizzaStore.Client.Controllers {
         decimal overallCost = 0.00M;
         int overallQuantity = 0;
 
-        int max = 0;
-        try {
-          max = _db.Orders.Max(o => o.OrderID);
-        } catch (InvalidOperationException e) { // orders table might be empty - dotnet still prints the exceptions even when caught
-          if (!e.Message.Contains("Sequence contains no elements")) {
-            throw e;
-          }
-        }
+        int max = _repo.GetNextOrderNumber();
 
+        bool noIssues = true;
         foreach (CheckModel selectedPizza in model.Menu) {
           if (selectedPizza.Checked) {
             string size = selectedPizza.SelectedSize.ToString().ToLower();
@@ -168,7 +163,7 @@ namespace PizzaStore.Client.Controllers {
             int crustID;
             CrustModel crust = null;
             if (int.TryParse(selectedPizza.SelectedCrust, out crustID)) {
-              crust = _db.Crust.Where(c => c.ID == crustID).SingleOrDefault();
+              crust = _repo.GetCrust(crustID);
             }
             if (crust == null) {
               model.ReasonForError = $"No crust was selected on the {selectedPizza.Name} pizza. Please try selecting a different crust.";
@@ -177,7 +172,7 @@ namespace PizzaStore.Client.Controllers {
 
             PizzaModel pizza;
             if (selectedPizza.ID != 0) {
-              pizza = _db.Pizzas.Where(p => p.ID == selectedPizza.ID).SingleOrDefault();
+              pizza = _repo.GetPizza(selectedPizza.ID);
             } else {
               pizza = new PizzaModel {
                 Cost = 20.00M
@@ -206,7 +201,7 @@ namespace PizzaStore.Client.Controllers {
             toppingIDs = toppingIDs.Substring(0, toppingIDs.Length - 1);
 
 
-            _db.Orders.Add(new OrderModel{
+            noIssues &= _repo.AddOrder(new OrderModel{
               OrderID = max + 1,
               StoreID = storeID,
               PizzaID = pizza.ID,
@@ -231,12 +226,13 @@ namespace PizzaStore.Client.Controllers {
         } else if (overallQuantity == 0) {
           model.ReasonForError = "There are no pizzas in this order. Please add some pizzas, then try again.";
           return View("Visit", model);
+        } else if (!noIssues) {
+          model.ReasonForError = "There was a problem adding some pizzas to your order";
         }
-        _db.SaveChanges();
 
         return View("Submitted");
       } else if (addCustomPizzaClicked) {
-        List<ToppingModel> toppings = _db.Toppings.ToList();
+        List<ToppingModel> toppings = _repo.GetToppings();
         ToppingViewModel[] toppingsSelected = new ToppingViewModel[toppings.Count()];
         for (int i = 0; i < toppingsSelected.Length; i++) {
           ToppingModel topping = toppings[i];
@@ -262,7 +258,7 @@ namespace PizzaStore.Client.Controllers {
     public IActionResult Store() {
       StoreViewModel model = new StoreViewModel();
       model.ID = storeLoggedIn;
-      model.StoreName = _db.Stores.Where(s => s.ID == model.ID).SingleOrDefault().Name;
+      model.StoreName = _repo.GetStore(model.ID).Name;
 
       return View(model);
     }
@@ -270,7 +266,7 @@ namespace PizzaStore.Client.Controllers {
     [HttpPost]
     public IActionResult ViewReports(StoreViewModel model) {
       model.ID = storeLoggedIn;
-      model.StoreName = _db.Stores.Where(s => s.ID == model.ID).SingleOrDefault().Name;
+      model.StoreName = _repo.GetStore(model.ID).Name;
 
       bool viewOrderHistory = Request.Form["history"].ToString() != "";
       bool viewSalesReports = Request.Form["sales"].ToString() != "";
@@ -300,7 +296,7 @@ namespace PizzaStore.Client.Controllers {
     [HttpPost]
     public IActionResult OrderHistory(StoreViewModel model) {
       model.ID = storeLoggedIn;
-      model.StoreName = _db.Stores.Where(s => s.ID == model.ID).SingleOrDefault().Name;
+      model.StoreName = _repo.GetStore(model.ID).Name;
       model.OrderHistory = new List<OrderViewClass>();
 
       bool submitClicked = Request.Form["submit"].ToString() != "";
@@ -320,14 +316,14 @@ namespace PizzaStore.Client.Controllers {
 
       List<OrderModel> orders;
       if (model.OptionSelected == 1) {
-        orders = _db.Orders.Where(o => o.StoreID == model.ID).ToList();
+        orders = _repo.GetOrdersForStore(model.ID);
       } else {  // if model.OptionSelected == 2
         int parsedUserID;
         if (!int.TryParse(model.FilterHistoryToUser, out parsedUserID)) {
           model.ReasonForError = "Please enter a positive integer for a user ID";
           return View("OrderHistory", model);
         }
-        orders = _db.Orders.Where(o => o.StoreID == model.ID).Where(o => o.UserID == parsedUserID).ToList();
+        orders = _repo.GetOrdersForStoreAndUser(model.ID, parsedUserID);
       }
 
       foreach (OrderModel order in orders) {
