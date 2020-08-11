@@ -11,7 +11,7 @@ The goal of the project is to build a Pizza Ordering System.
     + think about abstraction, design patterns ✔️
     + implement Models ✔️
   + [project - ClassLib ] PizzaBox.Storing.csproj ✔️
-    + implement at least 1 repository
+    + implement at least 1 repository ✔️
   + [project - xunit] PizzaBox.Testing.csproj ✔️
     + implement unit testing
 
