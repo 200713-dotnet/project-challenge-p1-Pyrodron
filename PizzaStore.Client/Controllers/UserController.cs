@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using PizzaStore.Client.Models;
 using PizzaStore.Domain.Models;
 using PizzaStore.Storing;
+using PizzaStore.Storing.Repositories;
 
 namespace PizzaStore.Client.Controllers {
   public class UserController : Controller {
-    private readonly PizzaStoreDbContext _db;
+    private readonly PizzaRepository _repo;
     private int userLoggedIn {
       get {
         TempData.Keep("UserID");
@@ -16,21 +17,21 @@ namespace PizzaStore.Client.Controllers {
       }
     }
 
-    public UserController(PizzaStoreDbContext context) { // dependency injection handled by dotnet will pass the active DbContext instance here
-      _db = context;
+    public UserController(PizzaRepository repo) { // dependency injection handled by dotnet will pass the active DbContext instance here
+      _repo = repo;
     }
     
     public IActionResult StoreSelection() {
       UserViewModel model = new UserViewModel();
-      model.Name = _db.Users.Where(u => u.ID == userLoggedIn).SingleOrDefault().Name;
-      model.Stores = _db.Stores.ToList();
+      model.Name = _repo.GetUser(userLoggedIn).Name;
+      model.Stores = _repo.GetStores();
 
       return View(model);
     }
 
     public IActionResult OptionSelected(UserViewModel model) {
-      model.Name = _db.Users.Where(u => u.ID == userLoggedIn).SingleOrDefault().Name;
-      model.Stores = _db.Stores.ToList();
+      model.Name = _repo.GetUser(userLoggedIn).Name;
+      model.Stores = _repo.GetStores();
 
       bool submitSelectionClicked = Request.Form["SubmitSelection"].ToString() != "";
       bool logOutClicked = Request.Form["LogOut"].ToString() != "";
@@ -56,7 +57,7 @@ namespace PizzaStore.Client.Controllers {
           return Redirect("/Order/OrderHistory");
         }
         StoreModel foundStore = null;
-        foreach (StoreModel store in _db.Stores.ToList()) {
+        foreach (StoreModel store in model.Stores) {
           if (store.ID == option) {
             foundStore = store;
             break;
