@@ -102,26 +102,33 @@ namespace PizzaStore.Storing.Repositories {
 
     public Tuple<int, string> UserCanOrder(int storeID, int userID) {
       IQueryable<OrderModel> allOrdersForUser = _db.Orders.Where(o => o.UserID == userID);
-      int lastOrderID = allOrdersForUser.Max(o => o.OrderID);
-      DateTime userLastOrdered = _db.Orders.Where(o => o.OrderID == lastOrderID).SingleOrDefault().Created;
-      TimeSpan difference = DateTime.Now - userLastOrdered;
-      if (difference.Hours < 2) { // user cannot place any orders for 2 hours
-        int hoursRemaining = 1 - difference.Hours;
-        int minutesRemaining = 59 - difference.Minutes;
-        return new Tuple<int, string>(1, $"{hoursRemaining} hour{(hoursRemaining == 1 ? "s" : "")} and {minutesRemaining} minute{(minutesRemaining == 1 ? "s" : "")})");
-      }
+      try {
+        int lastOrderID = allOrdersForUser.Max(o => o.OrderID);
+        DateTime userLastOrdered = _db.Orders.Where(o => o.OrderID == lastOrderID).SingleOrDefault().Created;
+        TimeSpan difference = DateTime.Now - userLastOrdered;
+        if (difference.Hours < 2) { // user cannot place any orders for 2 hours
+          int hoursRemaining = 1 - difference.Hours;
+          int minutesRemaining = 59 - difference.Minutes;
+          return new Tuple<int, string>(1, $"{hoursRemaining} hour{(hoursRemaining != 1 ? "s" : "")} and {minutesRemaining} minute{(minutesRemaining != 1 ? "s" : "")}");
+        }
 
-      int lastOrderID2 = allOrdersForUser.Where(o => o.StoreID == storeID).Max(o => o.OrderID);
-      if (lastOrderID != lastOrderID2) {  // if the order ID is unchanged, there's no point in querying the database for info we already have
-        userLastOrdered = _db.Orders.Where(o => o.OrderID == lastOrderID2).SingleOrDefault().Created;
-        difference = DateTime.Now - userLastOrdered;
+        int lastOrderID2 = allOrdersForUser.Where(o => o.StoreID == storeID).Max(o => o.OrderID);
+        if (lastOrderID != lastOrderID2) {  // if the order ID is unchanged, there's no point in querying the database for info we already have
+          userLastOrdered = _db.Orders.Where(o => o.OrderID == lastOrderID2).SingleOrDefault().Created;
+          difference = DateTime.Now - userLastOrdered;
+        }
+        if (difference.Hours < 24) {
+          int hoursRemaining = 23 - difference.Hours;
+          int minutesRemaining = 59 - difference.Minutes;
+          return new Tuple<int, string>(2, $"{hoursRemaining} hour{(hoursRemaining != 1 ? "s" : "")} and {minutesRemaining} minute{(minutesRemaining != 1 ? "s" : "")}");
+        }
+        return new Tuple<int, string>(0, "");
+      } catch (InvalidOperationException e) {
+        if (!e.Message.Contains("no elements")) {
+          throw e;
+        }
+        return new Tuple<int, string>(0, "");
       }
-      if (difference.Hours < 24) {
-        int hoursRemaining = 23 - difference.Hours;
-        int minutesRemaining = 59 - difference.Minutes;
-        return new Tuple<int, string>(2, $"{hoursRemaining} hour{(hoursRemaining == 1 ? "s" : "")} and {minutesRemaining} minute{(minutesRemaining == 1 ? "s" : "")})");
-      }
-      return new Tuple<int, string>(0, "");
     }
   }
 }
