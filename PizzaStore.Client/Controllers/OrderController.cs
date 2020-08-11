@@ -10,7 +10,6 @@ using PizzaStore.Storing.Repositories;
 
 namespace PizzaStore.Client.Controllers {
   public class OrderController : Controller {
-    // private readonly PizzaStoreDbContext _db;
     private readonly PizzaRepository _repo;
     private int userLoggedIn {
       get {
