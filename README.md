@@ -44,8 +44,8 @@ The project should support objects of User, Store, Order, Pizza.
 ### user
 
 + [required] must be able to view/list its order history ✔️
-+ [required] must be able to only order from 1 location in a 24-hour period with no reset
-+ [required] must be able to only order once every 2-hour period
++ [required] must be able to only order from 1 location in a 24-hour period with no reset ✔️
++ [required] must be able to only order once every 2-hour period ✔️
 
 ## technologies
 

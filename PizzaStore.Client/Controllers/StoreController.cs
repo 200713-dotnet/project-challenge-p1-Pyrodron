@@ -108,11 +108,10 @@ namespace PizzaStore.Client.Controllers {
 
     [HttpPost]
     public IActionResult SubmitOrder(StoreViewModel model) {
-      int storeID;
+      TempData.Keep("StoreID");
+      int storeID = (int) TempData["StoreID"];
       try {
         _ = userLoggedIn;
-        storeID = (int) TempData["StoreID"];
-        TempData.Keep("StoreID");
       } catch (NullReferenceException) {
         model.ReasonForError = "You are not logged into the system. You will only be able to view menus until you return to the main page and log in.";
         return View("Visit", model);
@@ -139,6 +138,15 @@ namespace PizzaStore.Client.Controllers {
         model.ReasonForError = "There was a problem processing your request. Please try again.";
         return View("Visit", model);
       } else if (submitOrderClicked) {
+        Tuple<int, string> userCanOrder = _repo.UserCanOrder(storeID, userLoggedIn);
+        if (userCanOrder.Item1 == 1) {
+          model.ReasonForError = $"You cannot place another order at any store for {userCanOrder.Item2}";
+          return View("Visit", model);
+        } else if (userCanOrder.Item1 == 2) {
+          model.ReasonForError = $"You cannot place another order at this store for {userCanOrder.Item2}";
+          return View("Visit", model);
+        }
+
         decimal overallCost = 0.00M;
         int overallQuantity = 0;
 
